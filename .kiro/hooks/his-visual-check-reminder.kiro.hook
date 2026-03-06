@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "视觉验证提醒",
+  "description": "当 AI 写入 .tsx/.jsx UI 文件后，提醒开发者可以触发\"HIS 视觉设计审查\"Hook 进行 Chrome DevTools 视觉验证，确保生成的 UI 与设计规范一致。",
+  "version": "1",
+  "when": {
+    "type": "postToolUse",
+    "toolTypes": [
+      "write"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "刚刚有文件被写入。如果写入的是 .tsx 或 .jsx UI 组件文件，请在回复末尾添加一行简短提醒：\n\n\"💡 UI 文件已更新。如需视觉验证，可点击触发「HIS 视觉设计审查」Hook，通过 Chrome DevTools 截图对比设计规范。\"\n\n如果写入的不是 UI 文件（如 .json、.md、.ts 非组件文件等），则不需要提醒，直接跳过。"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "HIS 样式规范校验",
+  "description": "当 TSX/JSX 文件被编辑保存时，自动检查代码是否符合 HIS 设计规范：禁止内联样式、禁止自定义 CSS 类、颜色值必须来自 Design Token、间距必须符合 4px 网格。按严重程度分级报告违规项并提供 Tailwind CSS 替代方案。",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.tsx",
+      "*.jsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "请对刚刚编辑的文件进行 HIS 样式规范校验。按以下维度逐一检查，并按严重程度分级报告：\n\n【错误级别 ❌】（必须修复）\n1. 内联样式检查：是否存在 style={{ }} 属性？如有，列出每处并提供对应的 Tailwind CSS 类替代方案。\n2. 自定义 CSS 类检查：是否存在非 Tailwind 工具类的自定义类名（如 .custom-header、.my-card）？如有，提供 Tailwind 工具类组合替代。\n3. 非法颜色值检查：是否使用了 text-[#xxx]、bg-[#xxx] 等任意颜色值？如有，映射到 his-design-system.md 中定义的颜色令牌（如 text-primary-500、bg-error-50）。\n4. 非法间距值检查：是否使用了 p-[13px]、m-[7px] 等非 4px 网格的任意间距值？如有，推荐最接近的标准间距类（如 p-3、m-2）。\n5. 第三方 UI 库检查：是否引入了 antd、@mui/material、react-icons 等禁止的第三方库？如有，提供 shadcn/ui + lucide-react 替代方案。\n\n【警告级别 ⚠️】（建议修复）\n6. 非标准圆角检查：是否使用了 rounded-[5px] 等任意圆角值？推荐标准圆角类。\n7. 非标准阴影检查：是否使用了自定义 shadow-[...] 值？推荐标准阴影类。\n8. 数据密度检查：表格/列表场景是否使用了 text-base 或更大字号？HIS 紧凑模式应使用 text-xs。\n\n【提示级别 💡】（可选优化）\n9. 语义色使用建议：是否有可以用 HIS 专用语义色（患者状态色、医嘱状态色）替代通用颜色的场景？\n10. 图标规范建议：图标是否使用了标准尺寸（h-3 w-3 / h-4 w-4 / h-5 w-5 / h-6 w-6）？\n\n输出格式：\n- 如果没有违规项，简短回复\"✅ 样式规范校验通过\"\n- 如果有违规项，按严重程度分组列出，每项包含：行号（如可确定）、违规描述、修复建议"
+  }
+}

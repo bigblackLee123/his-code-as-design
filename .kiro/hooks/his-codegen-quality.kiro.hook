@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "HIS 代码生成质量保障",
+  "description": "当 AI 写入 UI 代码文件后，自动验证生成的代码是否遵循 HIS 设计规范：Design Token 合规性、组件使用正确性、积木式拆分策略、200 行上限检查。",
+  "version": "1",
+  "when": {
+    "type": "postToolUse",
+    "toolTypes": [
+      "write"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "刚刚有 UI 代码被写入文件。如果写入的文件是 .tsx 或 .jsx 文件，请进行以下质量检查（如果不是 UI 代码文件则跳过，回复\"⏭️ 非 UI 文件，跳过检查\"）：\n\n【Design Token 合规性检查】\n1. 颜色值是否全部来自 his-design-system.md 定义的颜色令牌？是否存在硬编码颜色？\n2. 间距值是否符合 4px 网格体系？\n3. 字号是否使用了设计规范中定义的字号阶梯？\n4. 圆角和阴影是否使用标准 Tailwind 类？\n\n【组件使用检查】\n5. 是否使用了 his-components.md 中注册的 HIS 专用组件（HISDataTable、HISStatCard、HISTimeline、HISFormLayout）？在数据表格场景是否错误使用了基础 Table？\n6. 组件层级关系是否正确（参考 his-components.md 第 3 节层级关系表）？\n7. 是否存在互斥属性冲突（参考 his-components.md 第 4 节互斥规则表）？\n8. 患者敏感信息（姓名、身份证号、手机号）是否使用了 MaskedText 脱敏组件？\n\n【积木式拆分检查】\n9. 文件总行数是否超过 200 行？如果超过，建议按功能区域拆分为子 Block 组件。\n10. 组件是否保持单一职责？是否混合了展示逻辑和业务逻辑？\n11. Block 之间是否通过 props/context 通信？是否存在直接 DOM 操作或共享可变状态？\n\n输出格式：\n- 如果全部通过，简短回复\"✅ 代码质量检查通过\"\n- 如果有问题，列出具体问题和修复建议\n- 如果文件超过 200 行，给出具体的拆分建议（建议的子 Block 名称和职责划分）"
+  }
+}
