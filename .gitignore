@@ -2,3 +2,15 @@ node_modules
 dist
 .DS_Store
 *.local
+
+# 临时调试文件
+*.snapshot.txt
+*-snapshot.txt
+*-current.txt
+*-issue.png
+*.heapsnapshot
+trace.json
+trace.json.gz
+
+# 调试截图
+doc/screenshots/

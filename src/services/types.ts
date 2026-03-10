@@ -110,6 +110,7 @@ export interface QueueItem {
   id: string;
   patientId: string;
   patientName: string;
+  insuranceCardNo: string; // 医保卡号
   queueNumber: number;
   status: "waiting" | "in-progress" | "completed";
   enqueuedAt: string;

@@ -1,16 +1,15 @@
-import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   Stethoscope,
-  BedDouble,
   Users,
-  ClipboardList,
   Pill,
-  TestTube,
   Calendar,
-  Activity,
   ChevronLeft,
   ChevronRight,
+  HeartPulse,
+  Syringe,
+  Eye,
 } from "lucide-react";
 
 interface NavItem {
@@ -21,13 +20,13 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { icon: <Users className="h-4 w-4" />, label: "患者管理", href: "/patients" },
-  { icon: <BedDouble className="h-4 w-4" />, label: "床位管理", href: "/beds" },
-  { icon: <ClipboardList className="h-4 w-4" />, label: "医嘱管理", href: "/orders" },
-  { icon: <Stethoscope className="h-4 w-4" />, label: "门诊管理", href: "/outpatient" },
-  { icon: <Pill className="h-4 w-4" />, label: "药品管理", href: "/pharmacy" },
-  { icon: <TestTube className="h-4 w-4" />, label: "检验管理", href: "/lab" },
+  { icon: <Stethoscope className="h-4 w-4" />, label: "门诊管理", href: "/" },
+  { icon: <Pill className="h-4 w-4" />, label: "配方说明", href: "/pharmacy" },
   { icon: <Calendar className="h-4 w-4" />, label: "排班管理", href: "/schedule" },
-  { icon: <Activity className="h-4 w-4" />, label: "监护记录", href: "/monitoring" },
+  { icon: <HeartPulse className="h-4 w-4" />, label: "分诊终端", href: "/triage" },
+  { icon: <Stethoscope className="h-4 w-4" />, label: "医生终端", href: "/doctor" },
+  { icon: <Syringe className="h-4 w-4" />, label: "治疗终端", href: "/treatment" },
+  { icon: <Eye className="h-4 w-4" />, label: "组件预览", href: "/preview" },
 ];
 
 export interface SidebarProps {
@@ -36,13 +35,13 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) {
-  const [active, setActive] = useState("/patients");
+  const location = useLocation();
 
   return (
     <aside
       className={cn(
         "flex flex-col bg-neutral-900 text-neutral-50 transition-all duration-200",
-        collapsed ? "w-14" : "w-48"
+        collapsed ? "w-14" : "w-40"
       )}
     >
       {/* Logo 区域 */}
@@ -54,23 +53,26 @@ export function Sidebar({ collapsed = false, onCollapsedChange }: SidebarProps) 
       </div>
 
       {/* 导航菜单 */}
-      <nav className="flex-1 flex flex-col gap-1 p-2" aria-label="主导航">
-        {navItems.map((item) => (
-          <button
-            key={item.href}
-            onClick={() => setActive(item.href)}
-            className={cn(
-              "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors",
-              active === item.href
-                ? "bg-primary-600 text-neutral-50"
-                : "text-neutral-400 hover:bg-neutral-800 hover:text-neutral-50"
-            )}
-            aria-current={active === item.href ? "page" : undefined}
-          >
-            {item.icon}
-            {!collapsed && <span>{item.label}</span>}
-          </button>
-        ))}
+      <nav className="flex-1 flex flex-col gap-1 p-2 overflow-auto" aria-label="主导航">
+        {navItems.map((item) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              className={cn(
+                "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors",
+                isActive
+                  ? "bg-primary-600 text-neutral-50"
+                  : "text-neutral-400 hover:bg-neutral-800 hover:text-neutral-50"
+              )}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {item.icon}
+              {!collapsed && <span>{item.label}</span>}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* 折叠按钮 */}

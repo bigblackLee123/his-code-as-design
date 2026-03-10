@@ -29,9 +29,17 @@ export function MaskedText({
 function maskValue(type: MaskedTextProps["type"], value: string): string {
   switch (type) {
     case "name":
-      return (
-        value.charAt(0) + "*".repeat(Math.max(value.length - 1, 1))
-      );
+      // 姓名脱敏规则：
+      // - 三个字及以上：显示第一个字和最后一个字，中间用*替代（如：张*丰）
+      // - 两个字：第一个字显示，第二个字用*替代（如：张*）
+      // - 单字：显示原字（如：张）
+      if (value.length >= 3) {
+        return value.charAt(0) + "*".repeat(value.length - 2) + value.charAt(value.length - 1);
+      } else if (value.length === 2) {
+        return value.charAt(0) + "*";
+      } else {
+        return value;
+      }
     case "idNumber":
       return (
         value.slice(0, 3) +

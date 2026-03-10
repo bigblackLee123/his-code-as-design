@@ -26,8 +26,27 @@ const config: Config = {
         mono: ["JetBrains Mono", "monospace"],
       },
 
+      // shadcn/ui CSS 变量映射
+      borderColor: {
+        border: "var(--border)",
+      },
+      outlineColor: {
+        ring: "var(--ring)",
+      },
+      backgroundColor: {
+        background: "var(--background)",
+      },
+      textColor: {
+        foreground: "var(--foreground)",
+      },
+
       // 颜色体系 — 品牌色 + 语义色 + 中性色 + HIS 专用色
       colors: {
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
         // 品牌主色（医疗蓝）
         primary: {
           50: "#f0f9ff",

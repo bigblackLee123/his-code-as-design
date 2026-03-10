@@ -10,6 +10,12 @@ const vitalSignsStore: Map<string, VitalSigns> = new Map();
 let nextId = patients.length + 1;
 
 export const patientService = {
+  /** 通过患者 ID 查询患者 */
+  getById: async (patientId: string): Promise<Patient | null> => {
+    const patient = patients.find((p) => p.id === patientId);
+    return patient ?? null;
+  },
+
   /** 通过医保卡号查询患者 */
   getByInsuranceCard: async (cardNo: string): Promise<Patient | null> => {
     const patient = patients.find((p) => p.insuranceCardNo === cardNo);

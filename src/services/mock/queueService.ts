@@ -1,4 +1,5 @@
 import type { QueueItem } from "../types";
+import { mockPatients } from "./data/patients";
 
 const DEFAULT_MAX_QUEUE_SIZE = 20;
 
@@ -31,11 +32,18 @@ export const queueService = {
       throw new Error("候诊队列已满，请稍后再试");
     }
 
+    // 从患者数据中获取姓名和医保卡号
+    const patient = mockPatients.find((p) => p.id === patientId);
+    if (!patient) {
+      throw new Error(`患者不存在: ${patientId}`);
+    }
+
     waitingQueueCounter++;
     const item: QueueItem = {
       id: `WQ-${Date.now()}-${waitingQueueCounter}`,
       patientId,
-      patientName: "",
+      patientName: patient.name,
+      insuranceCardNo: patient.insuranceCardNo,
       queueNumber: waitingQueueCounter,
       status: "waiting",
       enqueuedAt: new Date().toISOString(),
@@ -65,11 +73,18 @@ export const queueService = {
 
   /** 患者入队（治疗） */
   enqueueTreatment: async (patientId: string): Promise<QueueItem> => {
+    // 从患者数据中获取姓名和医保卡号
+    const patient = mockPatients.find((p) => p.id === patientId);
+    if (!patient) {
+      throw new Error(`患者不存在: ${patientId}`);
+    }
+
     treatmentQueueCounter++;
     const item: QueueItem = {
       id: `TQ-${Date.now()}-${treatmentQueueCounter}`,
       patientId,
-      patientName: "",
+      patientName: patient.name,
+      insuranceCardNo: patient.insuranceCardNo,
       queueNumber: treatmentQueueCounter,
       status: "waiting",
       enqueuedAt: new Date().toISOString(),
