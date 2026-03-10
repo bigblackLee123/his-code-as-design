@@ -87,7 +87,7 @@ export function PreviewPage() {
       <div className="flex-1 overflow-auto flex flex-col gap-3 p-2">
         {activePage && (activeBlockIdx === null
           ? activePage.blocks.map((block) => (
-              <Card key={block.name} className="relative z-0 rounded-lg shadow-sm">
+              <Card key={block.name} className="rounded-lg shadow-sm">
                 <CardHeader className="p-2">
                   <CardTitle className="text-xs font-medium text-neutral-800">
                     {block.name}

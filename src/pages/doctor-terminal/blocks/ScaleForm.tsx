@@ -192,7 +192,7 @@ export function ScaleForm({ onSubmit }: ScaleFormProps) {
               size="sm"
               disabled={!allRequiredAnswered}
               onClick={handleSubmit}
-              className="text-xs ml-auto"
+              className="text-xs ml-auto bg-primary-600 text-white hover:bg-primary-700"
             >
               提交量表
             </Button>
