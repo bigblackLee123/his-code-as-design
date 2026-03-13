@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "HIS 代码质量自动检查",
+  "description": "当 UI 文件被写入后，提醒 agent 运行质量检查脚本。",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "如果刚才写入或修改的文件是 .tsx 或 .jsx 文件，请立即运行 `node scripts/his-lint.js <该文件路径>` 检查是否符合 HIS 规范。如果有违规，输出结果并自动修复。如果不是 tsx/jsx 文件则忽略。"
+  }
+}

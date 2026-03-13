@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "his-lint": "node scripts/his-lint.js"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
