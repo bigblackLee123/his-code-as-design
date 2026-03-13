@@ -4,8 +4,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { aiService } from "@/services/mock/aiService";
 import { patientService } from "@/services/mock/patientService";
-import type { Patient, ConsultationData, AISuggestion } from "@/services/types";
-import { Sparkles, RotateCcw, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
+import type { Patient, ConsultationData, AITherapySuggestion } from "@/services/types";
+import { Sparkles, RotateCcw, CheckCircle, AlertTriangle, Loader2, Music } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TIMEOUT_MS = 30_000;
@@ -13,11 +13,11 @@ const TIMEOUT_MS = 30_000;
 export interface AISuggestionPanelProps {
   patient: Patient;
   consultationData: ConsultationData;
-  onAdopt: (suggestion: AISuggestion) => void;
+  onAdopt: (suggestion: AITherapySuggestion) => void;
 }
 
 export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISuggestionPanelProps) {
-  const [suggestion, setSuggestion] = useState<AISuggestion | null>(null);
+  const [suggestion, setSuggestion] = useState<AITherapySuggestion | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -39,7 +39,7 @@ export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISugg
       }
 
       const result = await Promise.race([
-        aiService.getSuggestion({
+        aiService.getTherapySuggestion({
           vitals,
           contraindications: consultationData.contraindications,
           scaleResult: consultationData.scaleResults,
@@ -71,7 +71,7 @@ export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISugg
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">
           <Sparkles className="h-4 w-4 text-secondary-500" aria-hidden="true" />
-          <span className="text-xs font-medium text-neutral-800 leading-tight">AI 处方建议</span>
+          <span className="text-xs font-medium text-neutral-800 leading-tight">AI 疗愈建议</span>
         </div>
         {!loading && !suggestion && (
           <Button variant="default" size="sm" onClick={fetchSuggestion} aria-label="获取 AI 建议">
@@ -85,7 +85,7 @@ export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISugg
       {loading && (
         <div className="flex items-center justify-center gap-2 py-6 text-xs text-neutral-500">
           <Loader2 className="h-4 w-4 animate-spin text-primary-500" aria-hidden="true" />
-          <span>AI 正在分析患者数据，请稍候…</span>
+          <span>AI 正在分析患者数据，匹配疗愈方案…</span>
         </div>
       )}
 
@@ -107,7 +107,6 @@ export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISugg
       {/* Suggestion result */}
       {suggestion && (
         <div className="flex flex-col gap-2 rounded-md border border-neutral-200 p-2">
-          {/* Confidence badge */}
           <div className="flex items-center justify-between">
             <Badge
               className={cn(
@@ -125,39 +124,15 @@ export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISugg
             </Button>
           </div>
 
-          {/* Herb table */}
-          <div className="overflow-auto">
-            <table className="w-full text-xs leading-tight">
-              <thead>
-                <tr className="border-b border-neutral-200 bg-neutral-100">
-                  <th className="px-1 py-1 text-left font-medium text-neutral-600">药材</th>
-                  <th className="px-1 py-1 text-right font-medium text-neutral-600">剂量</th>
-                  <th className="px-1 py-1 text-left font-medium text-neutral-600">单位</th>
-                  <th className="px-1 py-1 text-left font-medium text-neutral-600">功效</th>
-                </tr>
-              </thead>
-              <tbody>
-                {suggestion.herbs.map((herb) => (
-                  <tr key={herb.name} className="border-b border-neutral-200 last:border-b-0">
-                    <td className="px-1 py-1 text-neutral-800">{herb.name}</td>
-                    <td className="px-1 py-1 text-right text-neutral-800">{herb.dosage}</td>
-                    <td className="px-1 py-1 text-neutral-500">{herb.unit}</td>
-                    <td className="px-1 py-1 text-neutral-500">{herb.reason}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Usage & notes */}
-          <div className="flex flex-col gap-1 text-xs leading-tight">
-            <div className="flex gap-1">
-              <span className="text-neutral-500 shrink-0">用法：</span>
-              <span className="text-neutral-700">{suggestion.usage}</span>
-            </div>
-            <div className="flex gap-1">
-              <span className="text-neutral-500 shrink-0">注意：</span>
-              <span className="text-neutral-700">{suggestion.notes}</span>
+          <div className="flex items-center gap-1 rounded-md bg-primary-50 p-2">
+            <Music className="h-4 w-4 text-primary-600 shrink-0" aria-hidden="true" />
+            <div className="flex flex-col gap-0.5">
+              <span className="text-xs font-medium text-primary-700 leading-tight">
+                推荐套餐：{suggestion.packageName}
+              </span>
+              <span className="text-xs text-neutral-600 leading-tight">
+                {suggestion.reason}
+              </span>
             </div>
           </div>
         </div>

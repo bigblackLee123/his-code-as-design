@@ -132,7 +132,7 @@ export interface TreatmentRecord {
 export interface ConsultationData {
   contraindications: Contraindication[];
   scaleResults: ScaleResult | null;
-  aiSuggestion: AISuggestion | null;
+  aiSuggestion: AISuggestion | AITherapySuggestion | null;
 }
 
 /** 处方元数据（与已有 PrescriptionForm 组件对齐） */
@@ -165,7 +165,7 @@ export interface PrescriptionData {
 export interface TreatmentPatient extends Patient {
   vitalSigns: VitalSigns;
   contraindications: Contraindication[];
-  prescription: PrescriptionData;
+  therapyPackage: TherapyPackage;
 }
 
 /** 治疗状态 */
@@ -173,4 +173,38 @@ export interface TreatmentState {
   status: "idle" | "treating" | "post-vitals" | "post-scale" | "completing";
   startTime: Date | null;
   endTime: Date | null;
+}
+
+/** 疗愈项目 */
+export interface TherapyProject {
+  id: string;
+  region: string;
+  name: string;
+  mechanism: string;
+  guidanceScript: string | null;
+  bpm: number | null;
+  mood: string;
+  energyLevel: string;
+  hasGuidance: boolean;
+  hasScenario: boolean;
+  targetAudience: string;
+}
+
+/** 疗愈套餐 */
+export interface TherapyPackage {
+  id: string;
+  name: string;
+  targetAudience: string;
+  matchedSymptoms: string;
+  projects: TherapyProject[];
+}
+
+/** AI 疗愈套餐建议（替代原 AISuggestion 用于疗愈场景） */
+export interface AITherapySuggestion {
+  id: string;
+  packageId: string;
+  packageName: string;
+  reason: string;
+  confidence: number;
+  generatedAt: string;
 }

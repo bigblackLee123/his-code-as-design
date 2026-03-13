@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Play, Square, Timer } from "lucide-react";
 import type { TreatmentState } from "@/services/types";
 
@@ -65,47 +64,43 @@ export function TreatmentAction({ state, onStart, onEnd }: TreatmentActionProps)
   const isIdle = state.status === "idle";
 
   return (
-    <Card className="rounded-lg shadow-sm">
-      <CardHeader className="p-3">
-        <CardTitle className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
-          <Timer className="h-4 w-4 text-primary-500" />
-          治疗操作
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-3">
-        <div className="flex items-center gap-3">
-          {isIdle ? (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-1">
+        <Timer className="h-4 w-4 text-primary-500" aria-hidden="true" />
+        <span className="text-xs font-medium text-neutral-800 leading-tight">治疗操作</span>
+      </div>
+      <div className="flex items-center gap-3">
+        {isIdle ? (
+          <Button
+            size="sm"
+            onClick={onStart}
+            aria-label="开始治疗"
+          >
+            <Play className="h-3 w-3" />
+            开始治疗
+          </Button>
+        ) : (
+          <>
+            {/* text-lg 用于治疗计时器，确保护士可远距离读取时间 */}
+            <div className="flex items-center gap-2 rounded-md bg-primary-50 px-3 py-1">
+              <Timer className="h-4 w-4 text-primary-600 animate-pulse" />
+              <span className="font-mono text-lg font-bold text-primary-700 leading-tight">
+                {formatElapsedTime(elapsed)}
+              </span>
+            </div>
             <Button
               size="sm"
-              onClick={onStart}
-              aria-label="开始治疗"
+              variant="destructive"
+              onClick={onEnd}
+              disabled={!isTreating}
+              aria-label="结束治疗"
             >
-              <Play className="h-3 w-3" />
-              开始治疗
+              <Square className="h-3 w-3" />
+              结束治疗
             </Button>
-          ) : (
-            <>
-              {/* text-lg 用于治疗计时器，确保护士可远距离读取时间 */}
-              <div className="flex items-center gap-2 rounded-md bg-primary-50 px-3 py-1">
-                <Timer className="h-4 w-4 text-primary-600 animate-pulse" />
-                <span className="font-mono text-lg font-bold text-primary-700 leading-tight">
-                  {formatElapsedTime(elapsed)}
-                </span>
-              </div>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={onEnd}
-                disabled={!isTreating}
-                aria-label="结束治疗"
-              >
-                <Square className="h-3 w-3" />
-                结束治疗
-              </Button>
-            </>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          </>
+        )}
+      </div>
+    </div>
   );
 }

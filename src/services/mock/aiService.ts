@@ -2,8 +2,9 @@ import type {
   VitalSigns,
   Contraindication,
   ScaleResult,
-  AISuggestion,
+  AITherapySuggestion,
 } from "../types";
+import { mockTherapyPackages } from "./data/therapyPackages";
 
 /** 模拟 1-2 秒延迟 */
 function randomDelay(): Promise<void> {
@@ -12,26 +13,20 @@ function randomDelay(): Promise<void> {
 }
 
 export const aiService = {
-  /** 获取 AI 处方建议（模拟延迟返回） */
-  getSuggestion: async (_data: {
+  /** 获取 AI 疗愈套餐建议（模拟延迟返回） */
+  getTherapySuggestion: async (_data: {
     vitals: VitalSigns;
     contraindications: Contraindication[];
     scaleResult: ScaleResult | null;
-  }): Promise<AISuggestion> => {
+  }): Promise<AITherapySuggestion> => {
     await randomDelay();
 
+    const pkg = mockTherapyPackages[0]!;
     return {
       id: `AI-${Date.now()}`,
-      herbs: [
-        { name: "黄芪", dosage: 30, unit: "g", reason: "补气固表" },
-        { name: "当归", dosage: 15, unit: "g", reason: "补血活血" },
-        { name: "白术", dosage: 15, unit: "g", reason: "健脾益气" },
-        { name: "防风", dosage: 10, unit: "g", reason: "祛风解表" },
-        { name: "陈皮", dosage: 10, unit: "g", reason: "理气健脾" },
-        { name: "甘草", dosage: 6, unit: "g", reason: "调和诸药" },
-      ],
-      usage: "水煎服，每日一剂，分早晚两次温服",
-      notes: "忌食生冷、辛辣刺激性食物，注意保暖休息",
+      packageId: pkg.id,
+      packageName: pkg.name,
+      reason: "根据患者生理数据及量表评估，建议采用失眠调理套餐，通过渐进式放松与α波助眠改善睡眠质量",
       confidence: 0.85,
       generatedAt: new Date().toISOString(),
     };

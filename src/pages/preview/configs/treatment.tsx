@@ -6,6 +6,7 @@ import { PostVitalSigns } from "@/pages/treatment-terminal/blocks/PostVitalSigns
 import { PostScaleForm } from "@/pages/treatment-terminal/blocks/PostScaleForm";
 import { QueueComplete } from "@/pages/treatment-terminal/blocks/QueueComplete";
 import type { TreatmentPatient, TreatmentState, VitalSigns } from "@/services/types";
+import { mockTherapyPackages } from "@/services/mock/data/therapyPackages";
 
 const mockVitals: VitalSigns = {
   systolicBP: 135,
@@ -37,23 +38,7 @@ const mockTreatmentPatient: TreatmentPatient = {
   contraindications: [
     { code: "CI002", name: "阴虚火旺", pinyin: "yinxuhuowang", pinyinInitial: "YXHW", category: "体质禁忌" },
   ],
-  prescription: {
-    meta: {
-      route: "口服",
-      usage: "水煎服",
-      frequency: "每日一剂",
-      dosage: "200ml",
-      orderType: "中药饮片",
-      department: "中医内科",
-      doses: 7,
-    },
-    herbs: [
-      { name: "黄芪", dosage: 30, unit: "g" },
-      { name: "当归", dosage: 15, unit: "g" },
-      { name: "白术", dosage: 12, unit: "g" },
-    ],
-    totalAmount: 57,
-  },
+  therapyPackage: mockTherapyPackages[0]!,
 };
 
 const treatingState: TreatmentState = {

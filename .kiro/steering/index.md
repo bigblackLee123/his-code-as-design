@@ -29,6 +29,7 @@ inclusion: always
 - HIS 默认紧凑模式：`text-xs` + `leading-tight`
 - 图标只用 `lucide-react`，默认 `h-4 w-4`
 - 每个 Block 文件 ≤ 200 行
+- 文档编辑类任务（`.md` 文件的新增/修改），不要直接写文件，而是返回纯文本内容 + 目标文件路径，由用户手动粘贴
 
 ---
 

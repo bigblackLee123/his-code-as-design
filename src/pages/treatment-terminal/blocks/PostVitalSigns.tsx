@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -68,15 +67,14 @@ export function PostVitalSigns({ preVitals, onSave }: PostVitalSignsProps) {
   };
 
   return (
-    <Card className="rounded-lg shadow-sm">
-      <CardHeader className="p-3">
-        <CardTitle className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
-          <HeartPulse className="h-4 w-4 text-primary-500" />
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-1">
+        <HeartPulse className="h-4 w-4 text-primary-500" aria-hidden="true" />
+        <span className="text-xs font-medium text-neutral-800 leading-tight">
           治疗后生理数据采集
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-3 flex flex-col gap-3">
-        <div className="grid grid-cols-3 gap-3">
+        </span>
+      </div>
+      <div className="grid grid-cols-3 gap-3">
           {FIELDS.map(({ key, label, unit }) => {
             const error = validation.errors[key];
             const isAlert = validation.alerts[key];
@@ -151,13 +149,12 @@ export function PostVitalSigns({ preVitals, onSave }: PostVitalSignsProps) {
           })}
         </div>
 
-        <div className="flex justify-end">
+      <div className="flex justify-end">
           <Button size="sm" onClick={handleSave} disabled={!canSave || saving}>
             <Save className="h-3 w-3" />
             {saving ? "保存中..." : "保存治疗后数据"}
           </Button>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }

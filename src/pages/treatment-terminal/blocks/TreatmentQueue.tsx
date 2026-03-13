@@ -6,6 +6,7 @@ import { queueService } from "@/services/mock/queueService";
 import { patientService } from "@/services/mock/patientService";
 import type { TreatmentPatient, QueueItem } from "@/services/types";
 import { Syringe, Phone } from "lucide-react";
+import { mockTherapyPackages } from "@/services/mock/data/therapyPackages";
 
 export interface TreatmentQueueProps {
   onPatientCalled: (patient: TreatmentPatient) => void;
@@ -25,7 +26,7 @@ function formatWaitingTime(enqueuedAt: string): string {
 /** Build a mock TreatmentPatient from base patient data */
 function buildMockTreatmentPatient(
   patient: NonNullable<Awaited<ReturnType<typeof patientService.getById>>>,
-  prescriptionType?: string
+  _prescriptionType?: string
 ): TreatmentPatient {
   return {
     ...patient,
@@ -41,24 +42,7 @@ function buildMockTreatmentPatient(
       { code: "C001", name: "孕妇禁用", pinyin: "yunfujinyong", pinyinInitial: "yfjy", category: "妊娠" },
       { code: "C005", name: "高血压慎用", pinyin: "gaoxueyashenyong", pinyinInitial: "gxysy", category: "心血管" },
     ],
-    prescription: {
-      meta: {
-        route: "口服",
-        usage: "水煎服",
-        frequency: "每日1剂",
-        dosage: "200ml",
-        orderType: prescriptionType ?? "中药饮片",
-        department: "中医内科",
-        doses: 7,
-      },
-      herbs: [
-        { name: "黄芪", dosage: 30, unit: "g" },
-        { name: "当归", dosage: 15, unit: "g" },
-        { name: "白术", dosage: 12, unit: "g" },
-        { name: "甘草", dosage: 6, unit: "g", note: "炙用" },
-      ],
-      totalAmount: 89.5,
-    },
+    therapyPackage: mockTherapyPackages[0]!,
   };
 }
 
@@ -142,7 +126,7 @@ export function TreatmentQueue({ onPatientCalled, disabled }: TreatmentQueueProp
                   </span>
                 </div>
                 <span className="text-secondary-600 shrink-0 truncate max-w-20">
-                  {item.prescriptionType ?? "中药"}
+                  {item.prescriptionType ?? "疗愈"}
                 </span>
                 <span className="text-neutral-400 shrink-0">
                   {formatWaitingTime(item.enqueuedAt)}

@@ -4,11 +4,18 @@ import { PatientInfoBar } from "./blocks/PatientInfoBar";
 import { ContraindicationInput } from "./blocks/ContraindicationInput";
 import { ScaleForm } from "./blocks/ScaleForm";
 import { AISuggestionPanel } from "./blocks/AISuggestionPanel";
+import { TherapyPackageSelector } from "./blocks/TherapyPackageSelector";
+import { TherapyProjectList } from "./blocks/TherapyProjectList";
 import { StatusTransition } from "./blocks/StatusTransition";
-import { PrescriptionForm } from "@/pages/outpatient-prescription/blocks/PrescriptionForm";
-import { HerbGrid } from "@/pages/outpatient-prescription/blocks/HerbGrid";
-import { ActionBar } from "@/pages/outpatient-prescription/blocks/ActionBar";
-import type { Patient, ConsultationData, AISuggestion, Contraindication, ScaleResult, HerbItem } from "@/services/types";
+import type {
+  Patient,
+  ConsultationData,
+  AITherapySuggestion,
+  Contraindication,
+  ScaleResult,
+  TherapyPackage,
+} from "@/services/types";
+import { therapyService } from "@/services/mock/therapyService";
 
 export function DoctorTerminalPage() {
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
@@ -17,13 +24,13 @@ export function DoctorTerminalPage() {
     scaleResults: null,
     aiSuggestion: null,
   });
-  const [herbs, setHerbs] = useState<HerbItem[] | undefined>(undefined);
+  const [selectedPackage, setSelectedPackage] = useState<TherapyPackage | null>(null);
   const [showTransition, setShowTransition] = useState(false);
 
   const handlePatientCalled = useCallback((patient: Patient) => {
     setCurrentPatient(patient);
     setConsultationData({ contraindications: [], scaleResults: null, aiSuggestion: null });
-    setHerbs(undefined);
+    setSelectedPackage(null);
     setShowTransition(false);
   }, []);
 
@@ -35,26 +42,28 @@ export function DoctorTerminalPage() {
     setConsultationData((prev) => ({ ...prev, scaleResults: results }));
   }, []);
 
-  const handleAdoptSuggestion = useCallback((suggestion: AISuggestion) => {
+  const handleAdoptSuggestion = useCallback(async (suggestion: AITherapySuggestion) => {
     setConsultationData((prev) => ({ ...prev, aiSuggestion: suggestion }));
-    const mappedHerbs: HerbItem[] = suggestion.herbs.map((h) => ({
-      name: h.name,
-      dosage: h.dosage,
-      unit: h.unit,
-    }));
-    setHerbs(mappedHerbs);
-  }, []);
-
-  const handleAction = useCallback((action: string) => {
-    if (action === "处方上传") {
-      setShowTransition(true);
+    const pkg = await therapyService.getPackageById(suggestion.packageId);
+    if (pkg) {
+      setSelectedPackage(pkg);
     }
   }, []);
+
+  const handleSelectPackage = useCallback((pkg: TherapyPackage) => {
+    setSelectedPackage(pkg);
+  }, []);
+
+  const handleConfirmPrescription = useCallback(() => {
+    if (selectedPackage) {
+      setShowTransition(true);
+    }
+  }, [selectedPackage]);
 
   const handleTransitionComplete = useCallback(() => {
     setCurrentPatient(null);
     setConsultationData({ contraindications: [], scaleResults: null, aiSuggestion: null });
-    setHerbs(undefined);
+    setSelectedPackage(null);
     setShowTransition(false);
   }, []);
 
@@ -80,11 +89,28 @@ export function DoctorTerminalPage() {
               consultationData={consultationData}
               onAdopt={handleAdoptSuggestion}
             />
-            <PrescriptionForm />
-            <HerbGrid herbs={herbs} />
-            <ActionBar onAction={handleAction} />
+            <TherapyPackageSelector
+              selectedPackageId={selectedPackage?.id ?? null}
+              onSelect={handleSelectPackage}
+            />
+            <TherapyProjectList selectedPackage={selectedPackage} />
+            {selectedPackage && !showTransition && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleConfirmPrescription}
+                  className="rounded-md bg-primary-600 px-3 py-1.5 text-xs font-medium text-white leading-tight hover:bg-primary-700 transition-colors"
+                >
+                  确认处方并流转
+                </button>
+              </div>
+            )}
             {showTransition && (
-              <StatusTransition patient={currentPatient} onComplete={handleTransitionComplete} />
+              <StatusTransition
+                patient={currentPatient}
+                selectedPackage={selectedPackage}
+                onComplete={handleTransitionComplete}
+              />
             )}
           </>
         ) : (
