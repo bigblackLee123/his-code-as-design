@@ -24,7 +24,7 @@ export function ScaleQuestionRenderer({
       case "single-choice":
         return (
           <RadioGroup
-            value={value as string | undefined}
+            value={(value as string | undefined) ?? ""}
             onValueChange={(val: string) => onChange(question.id, val)}
             className="flex flex-col gap-1.5"
           >

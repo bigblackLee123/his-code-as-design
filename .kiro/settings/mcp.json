@@ -19,7 +19,10 @@
         "evaluate_script",
         "fill",
         "list_pages",
-        "new_page"
+        "new_page",
+        "list_console_messages",
+        "get_console_message",
+        "list_network_requests"
       ]
     }
   }

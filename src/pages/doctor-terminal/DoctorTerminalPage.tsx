@@ -15,7 +15,7 @@ import type {
   ScaleResult,
   TherapyPackage,
 } from "@/services/types";
-import { therapyService } from "@/services/mock/therapyService";
+import { therapyService } from "@/services";
 
 export function DoctorTerminalPage() {
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { MaskedText } from "@/components/his/MaskedText";
-import { patientService } from "@/services/mock/patientService";
+import { patientService } from "@/services";
 import { hasVitalSignsAlert, validateVitalSigns } from "@/lib/vitalSignsValidation";
 import { VITAL_SIGNS_RULES } from "@/services/types";
 import type { Patient, VitalSigns } from "@/services/types";

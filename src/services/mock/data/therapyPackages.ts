@@ -6,6 +6,7 @@ export const mockTherapyPackages: TherapyPackage[] = [
     name: "失眠调理套餐",
     targetAudience: "长期失眠、入睡困难、早醒人群",
     matchedSymptoms: "失眠,入睡困难,早醒,多梦",
+    pinyinInitial: "smtl",
     projects: [
       {
         id: "proj-001",
@@ -40,6 +41,7 @@ export const mockTherapyPackages: TherapyPackage[] = [
     name: "抑郁舒缓套餐",
     targetAudience: "轻中度抑郁、情绪低落人群",
     matchedSymptoms: "抑郁,情绪低落,兴趣减退,疲乏",
+    pinyinInitial: "yysh",
     projects: [
       {
         id: "proj-003",
@@ -74,6 +76,7 @@ export const mockTherapyPackages: TherapyPackage[] = [
     name: "焦虑缓解套餐",
     targetAudience: "焦虑症状、紧张不安人群",
     matchedSymptoms: "焦虑,紧张,心悸,坐立不安",
+    pinyinInitial: "jljh",
     projects: [
       {
         id: "proj-005",

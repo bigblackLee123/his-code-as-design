@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService } from "@/services/mock/queueService";
+import { queueService } from "@/services";
 import type { Patient, QueueItem, TherapyPackage } from "@/services/types";
 import { ArrowRight, CheckCircle, AlertTriangle, RotateCcw, Music, ListMusic } from "lucide-react";
 

@@ -1,4 +1,3 @@
-Connecting to db 5432
 export type Json =
   | string
   | number
@@ -439,18 +438,21 @@ export type Database = {
           id: string
           matched_symptoms: string | null
           name: string
+          pinyin_initial: string | null
           target_audience: string | null
         }
         Insert: {
           id?: string
           matched_symptoms?: string | null
           name: string
+          pinyin_initial?: string | null
           target_audience?: string | null
         }
         Update: {
           id?: string
           matched_symptoms?: string | null
           name?: string
+          pinyin_initial?: string | null
           target_audience?: string | null
         }
         Relationships: []

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { scaleService } from "@/services/mock/scaleService";
+import { scaleService } from "@/services";
 import type { ScaleTemplate, ScaleResult } from "@/services/types";
 import { ClipboardList } from "lucide-react";
 import { ScaleQuestionRenderer } from "@/pages/doctor-terminal/blocks/ScaleQuestionRenderer";

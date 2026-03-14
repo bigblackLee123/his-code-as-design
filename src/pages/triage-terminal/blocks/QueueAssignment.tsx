@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService } from "@/services/mock/queueService";
+import { queueService } from "@/services";
+import { useQueueRealtime } from "@/hooks/useQueueRealtime";
 import type { Patient, VitalSigns, QueueItem } from "@/services/types";
 import { Users, CheckCircle, AlertTriangle, RotateCcw } from "lucide-react";
 
@@ -43,6 +44,11 @@ export function QueueAssignment({ patient, vitalSigns, onComplete }: QueueAssign
   useEffect(() => {
     loadQueueInfo();
   }, [loadQueueInfo]);
+
+  // Realtime: update waiting count on queue changes
+  useQueueRealtime(useCallback(() => {
+    if (status !== "assigning") loadQueueInfo();
+  }, [loadQueueInfo, status]));
 
   const handleAssign = async () => {
     setStatus("assigning");

@@ -196,6 +196,7 @@ export interface TherapyPackage {
   name: string;
   targetAudience: string;
   matchedSymptoms: string;
+  pinyinInitial: string;
   projects: TherapyProject[];
 }
 

@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Patient } from "@/services/types";
-import { patientService } from "@/services/mock/patientService";
+import { patientService } from "@/services";
 import { UserPlus } from "lucide-react";
 
 export interface ManualPatientFormProps {

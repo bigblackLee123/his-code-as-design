@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { contraindicationService } from "@/services/mock/contraindicationService";
+import { contraindicationService } from "@/services";
 import type { Contraindication } from "@/services/types";
 import { Search, X, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -88,12 +88,17 @@ export function ContraindicationInput({ value, onChange }: ContraindicationInput
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-neutral-400" aria-hidden="true" />
           <Input
             type="search"
-            placeholder="输入禁忌症名称或拼音首字母检索"
+            placeholder="输入禁忌症名称或拼音首字母检索（英文模式）"
             value={keyword}
             onChange={handleInputChange}
             onFocus={() => { if (results.length > 0) setIsOpen(true); }}
             className="pl-7 text-xs leading-tight h-7"
             aria-label="禁忌症搜索"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            inputMode="search"
           />
           {isLoading && (
             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-neutral-400">
@@ -104,7 +109,7 @@ export function ContraindicationInput({ value, onChange }: ContraindicationInput
 
         {/* Dropdown results */}
         {isOpen && results.length > 0 && (
-          <div className="absolute z-10 mt-1 w-full rounded-md border border-neutral-200 bg-white shadow-md max-h-48 overflow-auto">
+          <div className="absolute z-10 bottom-full mb-1 w-full rounded-md border border-neutral-200 bg-white shadow-md max-h-48 overflow-auto">
             {results.map((item) => (
               <button
                 key={item.code}
@@ -121,7 +126,7 @@ export function ContraindicationInput({ value, onChange }: ContraindicationInput
 
         {/* No results hint */}
         {isOpen && keyword.trim() && results.length === 0 && !isLoading && (
-          <div className="absolute z-10 mt-1 w-full rounded-md border border-neutral-200 bg-white shadow-md px-2 py-2 text-xs text-neutral-400 text-center">
+          <div className="absolute z-10 bottom-full mb-1 w-full rounded-md border border-neutral-200 bg-white shadow-md px-2 py-2 text-xs text-neutral-400 text-center">
             未找到匹配的禁忌症
           </div>
         )}

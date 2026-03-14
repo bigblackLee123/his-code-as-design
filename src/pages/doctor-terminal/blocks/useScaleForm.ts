@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { scaleService } from "@/services/mock/scaleService";
+import { scaleService } from "@/services";
 import type { ScaleTemplate, ScaleResult } from "@/services/types";
 
 export function useScaleForm(onSubmit: (r: ScaleResult) => void) {

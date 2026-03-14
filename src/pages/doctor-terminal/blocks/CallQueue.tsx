@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService } from "@/services/mock/queueService";
-import { patientService } from "@/services/mock/patientService";
+import { queueService, patientService } from "@/services";
+import { useQueueRealtime } from "@/hooks/useQueueRealtime";
 import type { Patient, QueueItem } from "@/services/types";
 import { Users, Phone } from "lucide-react";
 
@@ -39,9 +39,12 @@ export function CallQueue({ onPatientCalled, disabled }: CallQueueProps) {
 
   useEffect(() => {
     loadQueue();
-    const interval = setInterval(loadQueue, 5000);
-    return () => clearInterval(interval);
   }, [loadQueue]);
+
+  // Realtime: reload queue on any queue_items change
+  useQueueRealtime(useCallback(() => {
+    loadQueue();
+  }, [loadQueue]));
 
   const handleCallNext = async () => {
     setCalling(true);

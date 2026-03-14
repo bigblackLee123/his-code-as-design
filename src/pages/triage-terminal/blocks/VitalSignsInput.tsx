@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { validateVitalSigns } from "@/lib/vitalSignsValidation";
-import { patientService } from "@/services/mock/patientService";
+import { patientService } from "@/services";
 import { VITAL_SIGNS_RULES, VITAL_SIGNS_ALERT_THRESHOLDS } from "@/services/types";
 import type { Patient, VitalSigns } from "@/services/types";
 import { HeartPulse, AlertTriangle, Save } from "lucide-react";

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { MaskedText } from "@/components/his/MaskedText";
 import { ManualPatientForm } from "./ManualPatientForm";
-import { patientService } from "@/services/mock/patientService";
+import { patientService } from "@/services";
 import type { Patient } from "@/services/types";
 import { CreditCard, AlertTriangle, CheckCircle, UserPlus } from "lucide-react";
 
