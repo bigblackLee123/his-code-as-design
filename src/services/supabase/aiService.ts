@@ -26,8 +26,10 @@ export const aiService = {
 
     const suggestion: AITherapySuggestion = {
       id: response.id ?? `AI-${Date.now()}`,
-      packageId: response.packageId,
-      packageName: response.packageName,
+      projectIds: Array.isArray(response.projectIds) ? response.projectIds : [],
+      projectNames: Array.isArray(response.projectNames)
+        ? response.projectNames
+        : ["综合疗愈方案"],
       reason: response.reason,
       confidence: response.confidence,
       generatedAt: response.generatedAt ?? new Date().toISOString(),

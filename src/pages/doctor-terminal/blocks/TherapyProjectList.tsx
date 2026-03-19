@@ -1,18 +1,18 @@
 import { Badge } from "@/components/ui/badge";
-import type { TherapyPackage } from "@/services/types";
+import type { TherapyProject } from "@/services/types";
 import { ListMusic, MapPin, Heart, Zap, MessageSquare, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface TherapyProjectListProps {
-  selectedPackage: TherapyPackage | null;
+  selectedProjects: TherapyProject[];
 }
 
-export function TherapyProjectList({ selectedPackage }: TherapyProjectListProps) {
-  if (!selectedPackage) {
+export function TherapyProjectList({ selectedProjects }: TherapyProjectListProps) {
+  if (selectedProjects.length === 0) {
     return (
       <div className="flex items-center justify-center py-4">
         <span className="text-xs text-neutral-400 leading-tight">
-          请先选择疗愈套餐
+          请先选择疗愈项目
         </span>
       </div>
     );
@@ -23,11 +23,11 @@ export function TherapyProjectList({ selectedPackage }: TherapyProjectListProps)
       <div className="flex items-center gap-1">
         <ListMusic className="h-4 w-4 text-secondary-500" aria-hidden="true" />
         <span className="text-xs font-medium text-neutral-800 leading-tight">
-          {selectedPackage.name} — 项目详情
+          已选项目 — {selectedProjects.length} 个
         </span>
       </div>
       <div className="flex flex-col gap-1.5">
-        {selectedPackage.projects.map((proj, idx) => (
+        {selectedProjects.map((proj, idx) => (
           <div
             key={proj.id}
             className="rounded-md border border-neutral-200 bg-white p-2"

@@ -6,7 +6,7 @@ import { PostVitalSigns } from "@/pages/treatment-terminal/blocks/PostVitalSigns
 import { PostScaleForm } from "@/pages/treatment-terminal/blocks/PostScaleForm";
 import { QueueComplete } from "@/pages/treatment-terminal/blocks/QueueComplete";
 import type { TreatmentPatient, TreatmentState, VitalSigns } from "@/services/types";
-import { mockTherapyPackages } from "@/services/mock/data/therapyPackages";
+import { mockTherapyProjects } from "@/services/mock/data/therapyProjects";
 
 const mockVitals: VitalSigns = {
   systolicBP: 135,
@@ -36,9 +36,9 @@ const mockTreatmentPatient: TreatmentPatient = {
   createdAt: "2024-01-15T09:15:00Z",
   vitalSigns: mockVitals,
   contraindications: [
-    { code: "CI002", name: "阴虚火旺", pinyin: "yinxuhuowang", pinyinInitial: "YXHW", category: "体质禁忌" },
+    { code: "CI001", name: "严重心律失常", pinyin: "yanzhongxinlvshichang", pinyinInitial: "YZXLSC", category: "心血管" },
   ],
-  therapyPackage: mockTherapyPackages[0]!,
+  projects: mockTherapyProjects.slice(0, 3),
 };
 
 const treatingState: TreatmentState = {

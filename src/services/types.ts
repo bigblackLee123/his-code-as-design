@@ -54,6 +54,13 @@ export interface Contraindication {
   category: string;
 }
 
+/** 症状条目 */
+export interface Symptom {
+  name: string;
+  pinyin: string;        // 拼音全拼
+  pinyinInitial: string; // 拼音首字母
+}
+
 /** 量表模板 */
 export interface ScaleTemplate {
   id: string;
@@ -131,6 +138,7 @@ export interface TreatmentRecord {
 /** 诊疗数据（医生终端汇总） */
 export interface ConsultationData {
   contraindications: Contraindication[];
+  symptoms: Symptom[];
   scaleResults: ScaleResult | null;
   aiSuggestion: AISuggestion | AITherapySuggestion | null;
 }
@@ -165,7 +173,7 @@ export interface PrescriptionData {
 export interface TreatmentPatient extends Patient {
   vitalSigns: VitalSigns;
   contraindications: Contraindication[];
-  therapyPackage: TherapyPackage;
+  projects: TherapyProject[];
 }
 
 /** 治疗状态 */
@@ -188,23 +196,14 @@ export interface TherapyProject {
   hasGuidance: boolean;
   hasScenario: boolean;
   targetAudience: string;
+  contraindications: string[];
 }
 
-/** 疗愈套餐 */
-export interface TherapyPackage {
-  id: string;
-  name: string;
-  targetAudience: string;
-  matchedSymptoms: string;
-  pinyinInitial: string;
-  projects: TherapyProject[];
-}
-
-/** AI 疗愈套餐建议（替代原 AISuggestion 用于疗愈场景） */
+/** AI 疗愈建议（推荐多个项目） */
 export interface AITherapySuggestion {
   id: string;
-  packageId: string;
-  packageName: string;
+  projectIds: string[];
+  projectNames: string[];
   reason: string;
   confidence: number;
   generatedAt: string;

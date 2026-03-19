@@ -2,9 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   Stethoscope,
-  Users,
-  Pill,
-  Calendar,
   ChevronLeft,
   ChevronRight,
   HeartPulse,
@@ -19,10 +16,6 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { icon: <Users className="h-4 w-4" />, label: "患者管理", href: "/patients" },
-  { icon: <Stethoscope className="h-4 w-4" />, label: "门诊管理", href: "/" },
-  { icon: <Pill className="h-4 w-4" />, label: "配方说明", href: "/pharmacy" },
-  { icon: <Calendar className="h-4 w-4" />, label: "排班管理", href: "/schedule" },
   { icon: <HeartPulse className="h-4 w-4" />, label: "分诊终端", href: "/triage" },
   { icon: <Stethoscope className="h-4 w-4" />, label: "医生终端", href: "/doctor" },
   { icon: <Syringe className="h-4 w-4" />, label: "治疗终端", href: "/treatment" },

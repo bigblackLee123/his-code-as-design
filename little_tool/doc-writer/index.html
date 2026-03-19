@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doc Writer - 文档快写工具</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #94a3b8; }
+  h1 span { color: #38bdf8; }
+
+  .input-section { margin-bottom: 20px; }
+  .input-section label { display: block; font-size: 13px; color: #64748b; margin-bottom: 6px; }
+  textarea {
+    width: 100%; height: 200px; background: #1e293b; border: 1px solid #334155;
+    border-radius: 8px; padding: 12px; color: #e2e8f0; font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px; resize: vertical; outline: none; transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: #38bdf8; }
+  textarea::placeholder { color: #475569; }
+
+  .actions { display: flex; gap: 10px; margin-bottom: 20px; }
+  button {
+    padding: 8px 20px; border: none; border-radius: 6px; font-size: 13px;
+    font-weight: 500; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-parse { background: #334155; color: #e2e8f0; }
+  .btn-parse:hover { background: #475569; }
+  .btn-write { background: #0ea5e9; color: white; }
+  .btn-write:hover { background: #0284c7; }
+  .btn-write:disabled { background: #1e3a5f; color: #64748b; cursor: not-allowed; }
+  .btn-clear { background: #334155; color: #94a3b8; }
+  .btn-clear:hover { background: #475569; }
+
+  .result { display: none; }
+  .result.show { display: block; }
+
+  .file-card {
+    background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .file-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; background: #334155; font-size: 13px;
+  }
+  .file-path { color: #38bdf8; font-family: 'SF Mono', monospace; }
+  .file-status { font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+  .status-ready { background: #164e63; color: #22d3ee; }
+  .status-done { background: #14532d; color: #4ade80; }
+  .status-error { background: #7f1d1d; color: #f87171; }
+
+  .file-preview {
+    padding: 16px; font-size: 13px; line-height: 1.6; max-height: 400px;
+    overflow-y: auto; white-space: pre-wrap; font-family: 'SF Mono', monospace;
+    color: #cbd5e1;
+  }
+  .mode-badge {
+    font-size: 11px; padding: 2px 6px; border-radius: 3px; margin-left: 8px;
+  }
+  .mode-full { background: #1e3a5f; color: #60a5fa; }
+  .mode-patch { background: #3b2f1e; color: #fbbf24; }
+  .patch-item { margin-bottom: 12px; border-left: 2px solid #475569; padding-left: 10px; }
+  .patch-old { color: #f87171; }
+  .patch-new { color: #4ade80; }
+  .patch-label { font-size: 11px; color: #64748b; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>📝 <span>Doc Writer</span> — 文档快写工具</h1>
+
+  <div class="input-section">
+    <label>粘贴 AI 输出的内容（支持多个文件，用 &lt;!-- filepath: xxx --&gt; 分隔）</label>
+    <textarea id="input" placeholder="<!-- filepath: doc/example.md -->
+# 文档标题
+
+文档内容...
+
+<!-- filepath: doc/another.md -->
+# 另一个文档
+..."></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="btn-parse" onclick="parseInput()">🔍 解析</button>
+    <button class="btn-write" id="btnWrite" onclick="writeAll()" disabled>✍️ 全部写入</button>
+    <button class="btn-clear" onclick="clearAll()">🗑️ 清空</button>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+</body>
+</html>
+
+<script>
+let parsedFiles = [];
+
+function parseInput() {
+  const raw = document.getElementById('input').value.trim();
+  if (!raw) return;
+
+  const blocks = [];
+  const regex = /(?:<!--\s*filepath:\s*(.+?)\s*-->|(?:\*{0,2})目标文件[：:]\s*`?([^\s`*]+)`?\s*\*{0,2})/gi;
+  let match;
+  const positions = [];
+
+  while ((match = regex.exec(raw)) !== null) {
+    positions.push({ index: match.index, end: match.index + match[0].length, path: (match[1] || match[2]).trim() });
+  }
+
+  if (positions.length === 0) {
+    document.getElementById('result').innerHTML = '<div class="file-card"><div class="file-header"><span style="color:#f87171">⚠️ 未检测到文件路径标记</span></div><div class="file-preview">请确保内容包含 &lt;!-- filepath: xxx --&gt; 或 目标文件：xxx 格式的路径标记</div></div>';
+    document.getElementById('result').classList.add('show');
+    return;
+  }
+
+  for (let i = 0; i < positions.length; i++) {
+    const contentStart = positions[i].end;
+    const contentEnd = i + 1 < positions.length ? positions[i + 1].index : raw.length;
+    let chunk = raw.slice(contentStart, contentEnd).trim();
+
+    // 检测 patch 模式
+    const isPatch = /<!--\s*mode:\s*patch\s*-->/.test(chunk);
+    chunk = chunk.replace(/<!--\s*mode:\s*patch\s*-->\s*/, '');
+
+    // 去掉代码块包裹
+    chunk = chunk.replace(/^`{3,}[\w]*\s*\n?/, '').replace(/\n?\s*`{3,}\s*$/, '').trim();
+
+    if (isPatch) {
+      const patches = parsePatchContent(chunk);
+      blocks.push({ path: positions[i].path, mode: 'patch', patches });
+    } else {
+      blocks.push({ path: positions[i].path, mode: 'full', content: chunk });
+    }
+  }
+
+  parsedFiles = blocks;
+  renderCards();
+  document.getElementById('btnWrite').disabled = false;
+}
+
+function parsePatchContent(text) {
+  const patches = [];
+  const patchRegex = /<<<< old\n([\s\S]*?)\n====\n([\s\S]*?)\n>>>> end/g;
+  let m;
+  while ((m = patchRegex.exec(text)) !== null) {
+    patches.push({ old: m[1], new: m[2] });
+  }
+  return patches;
+}
+
+function renderCards() {
+  const html = parsedFiles.map((f, i) => {
+    const modeBadge = f.mode === 'patch'
+      ? '<span class="mode-badge mode-patch">📝 补丁模式</span>'
+      : '<span class="mode-badge mode-full">📄 全量写入</span>';
+
+    let preview;
+    if (f.mode === 'patch') {
+      preview = f.patches.map((p, j) => `<div class="patch-item"><div class="patch-label">替换 #${j+1}</div><div class="patch-old">- ${escHtml(p.old)}</div><div class="patch-new">+ ${escHtml(p.new)}</div></div>`).join('');
+    } else {
+      preview = escHtml(f.content);
+    }
+
+    return `<div class="file-card" id="card-${i}"><div class="file-header"><span><span class="file-path">${escHtml(f.path)}</span>${modeBadge}</span><span class="file-status status-ready">待写入</span></div><div class="file-preview">${preview}</div></div>`;
+  }).join('');
+  const el = document.getElementById('result');
+  el.innerHTML = html;
+  el.classList.add('show');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function writeAll() {
+  document.getElementById('btnWrite').disabled = true;
+  for (let i = 0; i < parsedFiles.length; i++) {
+    const f = parsedFiles[i];
+    const card = document.getElementById(`card-${i}`);
+    const status = card.querySelector('.file-status');
+    status.textContent = '写入中...';
+    status.className = 'file-status status-ready';
+
+    try {
+      if (f.mode === 'patch') {
+        // 先读取原文件
+        const readRes = await fetch(`/api/read?path=${encodeURIComponent(f.path)}`);
+        const readData = await readRes.json();
+        if (!readRes.ok) throw new Error(readData.error);
+
+        let content = readData.content;
+        let failedPatches = [];
+        for (let j = 0; j < f.patches.length; j++) {
+          if (content.includes(f.patches[j].old)) {
+            content = content.replace(f.patches[j].old, f.patches[j].new);
+          } else {
+            failedPatches.push(j + 1);
+          }
+        }
+
+        if (failedPatches.length > 0) {
+          status.textContent = `⚠️ 补丁 #${failedPatches.join(', #')} 未匹配`;
+          status.className = 'file-status status-error';
+          if (failedPatches.length < f.patches.length) {
+            // 部分成功，仍然写入
+            const writeRes = await fetch('/api/write', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ filePath: f.path, content })
+            });
+            if (writeRes.ok) {
+              status.textContent = `⚠️ 已写入，但补丁 #${failedPatches.join(', #')} 未匹配`;
+            }
+          }
+          continue;
+        }
+
+        const writeRes = await fetch('/api/write', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filePath: f.path, content })
+        });
+        const writeData = await writeRes.json();
+        if (writeRes.ok) {
+          status.textContent = `✅ 已应用 ${f.patches.length} 处补丁`;
+          status.className = 'file-status status-done';
+        } else {
+          status.textContent = `❌ ${writeData.error}`;
+          status.className = 'file-status status-error';
+        }
+      } else {
+        const res = await fetch('/api/write', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filePath: f.path, content: f.content })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          status.textContent = '✅ 已写入';
+          status.className = 'file-status status-done';
+        } else {
+          status.textContent = `❌ ${data.error}`;
+          status.className = 'file-status status-error';
+        }
+      }
+    } catch (e) {
+      status.textContent = `❌ ${e.message}`;
+      status.className = 'file-status status-error';
+    }
+  }
+}
+
+function clearAll() {
+  document.getElementById('input').value = '';
+  document.getElementById('result').innerHTML = '';
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('btnWrite').disabled = true;
+  parsedFiles = [];
+}
+</script>

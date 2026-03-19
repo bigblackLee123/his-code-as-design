@@ -4,7 +4,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { aiService, patientService } from "@/services";
 import type { Patient, ConsultationData, AITherapySuggestion } from "@/services/types";
-import { Sparkles, RotateCcw, CheckCircle, AlertTriangle, Loader2, Music } from "lucide-react";
+import { Sparkles, RotateCcw, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TIMEOUT_MS = 30_000;
@@ -123,16 +123,19 @@ export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISugg
             </Button>
           </div>
 
-          <div className="flex items-center gap-1 rounded-md bg-primary-50 p-2">
-            <Music className="h-4 w-4 text-primary-600 shrink-0" aria-hidden="true" />
-            <div className="flex flex-col gap-0.5">
-              <span className="text-xs font-medium text-primary-700 leading-tight">
-                推荐套餐：{suggestion.packageName}
-              </span>
-              <span className="text-xs text-neutral-600 leading-tight">
-                {suggestion.reason}
-              </span>
-            </div>
+          <div className="flex flex-col gap-1.5 rounded-md bg-primary-50 p-2">
+            <span className="text-xs text-neutral-600 leading-tight">
+              {suggestion.reason}
+            </span>
+            {suggestion.projectNames.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {suggestion.projectNames.map((name) => (
+                  <Badge key={name} variant="outline" className="text-xs px-1 py-0">
+                    {name}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

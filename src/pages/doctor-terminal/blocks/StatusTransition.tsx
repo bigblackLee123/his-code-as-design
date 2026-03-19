@@ -4,18 +4,18 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { MaskedText } from "@/components/his/MaskedText";
 import { queueService } from "@/services";
-import type { Patient, QueueItem, TherapyPackage } from "@/services/types";
-import { ArrowRight, CheckCircle, AlertTriangle, RotateCcw, Music, ListMusic } from "lucide-react";
+import type { Patient, QueueItem, TherapyProject } from "@/services/types";
+import { ArrowRight, CheckCircle, AlertTriangle, RotateCcw, ListMusic } from "lucide-react";
 
 export interface StatusTransitionProps {
   patient: Patient;
-  selectedPackage: TherapyPackage | null;
+  selectedProjects: TherapyProject[];
   onComplete: () => void;
 }
 
 type TransitionState = "confirm" | "loading" | "success" | "error";
 
-export function StatusTransition({ patient, selectedPackage, onComplete }: StatusTransitionProps) {
+export function StatusTransition({ patient, selectedProjects, onComplete }: StatusTransitionProps) {
   const [state, setState] = useState<TransitionState>("confirm");
   const [queueItem, setQueueItem] = useState<QueueItem | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -67,21 +67,17 @@ export function StatusTransition({ patient, selectedPackage, onComplete }: Statu
           </div>
         </div>
 
-        {/* Therapy package summary */}
-        {selectedPackage && (
+        {/* Selected projects summary */}
+        {selectedProjects.length > 0 && (
           <div className="flex flex-col gap-1 rounded-md bg-primary-50 p-2">
             <div className="flex items-center gap-1">
-              <Music className="h-3 w-3 text-primary-600" aria-hidden="true" />
+              <ListMusic className="h-3 w-3 text-primary-600" aria-hidden="true" />
               <span className="text-xs font-medium text-primary-700 leading-tight">
-                疗愈处方：{selectedPackage.name}
+                已选 {selectedProjects.length} 个疗愈项目
               </span>
             </div>
-            <div className="flex items-center gap-1 text-xs text-neutral-600 leading-tight">
-              <ListMusic className="h-3 w-3" aria-hidden="true" />
-              <span>包含 {selectedPackage.projects.length} 个疗愈项目</span>
-            </div>
             <div className="flex flex-wrap gap-1">
-              {selectedPackage.projects.map((proj) => (
+              {selectedProjects.map((proj) => (
                 <Badge key={proj.id} variant="outline" className="text-xs leading-tight px-1 py-0">
                   {proj.name}
                 </Badge>

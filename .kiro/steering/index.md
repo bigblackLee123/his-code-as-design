@@ -29,7 +29,45 @@ inclusion: always
 - HIS 默认紧凑模式：`text-xs` + `leading-tight`
 - 图标只用 `lucide-react`，默认 `h-4 w-4`
 - 每个 Block 文件 ≤ 200 行
-- 文档编辑类任务（`.md` 文件的新增/修改），不要直接写文件，而是返回纯文本内容 + 目标文件路径，由用户手动粘贴
+- 文档编辑类任务（`.md` 文件的新增/修改），不要直接写文件，而是在聊天窗口中输出内容。根据场景选择合适的模式：
+
+  **模式一：全量写入（新建文件 或 大幅重写时使用）**
+  - 路径标记行：`<!-- filepath: 相对路径 -->`
+  - 紧跟文件完整内容，**必须用 markdown 代码块（```）包裹**
+  - 示例：
+
+    <!-- filepath: doc/example.md -->
+    ```
+    # 标题
+
+    文档内容...
+    ```
+
+  **模式二：增量补丁（修改已有文件的局部内容时使用，省 token）**
+  - 路径标记行加 mode 标记：`<!-- filepath: 相对路径 -->` + `<!-- mode: patch -->`
+  - 每处修改用 `<<<< old` / `====` / `>>>> end` 包裹，给出要替换的原文和新文
+  - 可包含多处修改，依次排列
+  - 原文必须精确匹配文件中的内容（包括换行和缩进）
+  - 示例：
+
+    <!-- filepath: doc/example.md -->
+    <!-- mode: patch -->
+    ```
+    <<<< old
+    旧的段落内容
+    ====
+    新的段落内容
+    >>>> end
+
+    <<<< old
+    另一处旧内容
+    ====
+    另一处新内容
+    >>>> end
+    ```
+
+  **选择原则：修改内容 < 原文件 50% 时用补丁模式，否则用全量模式**
+  - 用户会通过 Doc Writer 工具（`little_tool/doc-writer/`）一键写入文件
 
 ---
 
@@ -39,11 +77,13 @@ inclusion: always
 
 | 任务类型 | 模块入口 | 何时读取 |
 |----------|---------|---------|
-| 用户提出新需求/修改功能 | `doc/task-implementation/01-change-sop/index.md` | 按 8 步流程逐步读取对应步骤文件 |
+| 用户提出新需求/修改功能（前端） | `doc/task-implementation/01-change-sop/index.md` | 按 8 步流程逐步读取对应步骤文件 |
+| 用户提出新需求/修改功能（后端/数据） | `doc/task-implementation/07-backend-change-sop/index.md` | 涉及数据库、Edge Function、数据迁移、前后端联调时使用 |
 | 需要查颜色/字号/间距/圆角/阴影 | `doc/task-implementation/02-design-system/index.md` | 只读涉及的主题子文件（如只改颜色就只读 `color-tokens.md`） |
 | 需要用/开发 UI 组件 | `doc/task-implementation/03-components/index.md` | 按需读通用组件/HIS专用/层级/互斥/示例 |
 | 创建新页面/修改页面结构 | `doc/task-implementation/04-patterns/index.md` | 先读 `block-composition.md`，再读对应模板文件 |
 | 视觉测试验证 | `doc/task-implementation/05-visual-testing/index.md` | 按终端逐个读取（分诊/医生/治疗） |
 | 检查 UI 是否符合规范 | `doc/task-implementation/06-ui-rules/index.md` | 按约束类型读取（样式/结构/业务） |
 | 百炼平台 AI 对接 | `doc/official_API_Doc/aliyun/` | 大模型请求体、响应对象、知识库 API 示例 |
+
 

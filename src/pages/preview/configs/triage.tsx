@@ -6,12 +6,12 @@ import type { Patient, VitalSigns } from "@/services/types";
 
 const mockPatient: Patient = {
   id: "P001",
-  name: "张三丰",
+  name: "张三",
   gender: "male",
-  age: 68,
-  idNumber: "110101195601151234",
-  phone: "13812345678",
-  insuranceCardNo: "YB20240001",
+  age: 45,
+  idNumber: "310101197801010011",
+  phone: "13800138000",
+  insuranceCardNo: "YB2024001",
   status: "checked-in",
   createdAt: "2024-01-15T08:30:00Z",
 };

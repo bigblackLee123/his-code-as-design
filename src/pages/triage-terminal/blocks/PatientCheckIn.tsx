@@ -34,17 +34,17 @@ export function PatientCheckIn({ onCheckInComplete }: PatientCheckInProps) {
     }
 
     // Simulate reading a known insurance card
-    const mockCardNo = "YB20240001";
+    const mockCardNo = "YB2024001";
     let found = await patientService.getByInsuranceCard(mockCardNo);
 
     if (!found) {
       // Auto-create new patient from card data
       found = await patientService.create({
-        name: "张三丰",
+        name: "张三",
         gender: "male",
-        age: 68,
-        idNumber: "110101195601151234",
-        phone: "13812345678",
+        age: 45,
+        idNumber: "310101197801010011",
+        phone: "13800138000",
         insuranceCardNo: mockCardNo,
       });
     }

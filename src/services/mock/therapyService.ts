@@ -1,21 +1,25 @@
-import type { TherapyPackage } from "../types";
-import { mockTherapyPackages } from "./data/therapyPackages";
+import type { TherapyProject } from "../types";
+import { mockTherapyProjects } from "./data/therapyProjects";
 
 export const therapyService = {
-  /** 获取所有疗愈套餐 */
-  getPackages: async (): Promise<TherapyPackage[]> => {
-    return mockTherapyPackages;
+  /** 获取所有疗愈项目 */
+  async getProjects(): Promise<TherapyProject[]> {
+    return mockTherapyProjects;
   },
 
-  /** 根据 ID 获取套餐详情 */
-  getPackageById: async (id: string): Promise<TherapyPackage | null> => {
-    return mockTherapyPackages.find((p) => p.id === id) ?? null;
+  /** 按 ID 获取疗愈项目，不存在返回 null */
+  async getProjectById(id: string): Promise<TherapyProject | null> {
+    return mockTherapyProjects.find((p) => p.id === id) ?? null;
   },
 
-  /** 根据症状关键词匹配套餐 */
-  matchBySymptoms: async (symptoms: string[]): Promise<TherapyPackage[]> => {
-    return mockTherapyPackages.filter((pkg) =>
-      symptoms.some((s) => pkg.matchedSymptoms.includes(s))
+  /** 按症状关键词匹配疗愈项目（targetAudience 包含任一关键词，不区分大小写） */
+  async matchBySymptoms(symptoms: string[]): Promise<TherapyProject[]> {
+    if (symptoms.length === 0) return [];
+
+    return mockTherapyProjects.filter((project) =>
+      symptoms.some((s) =>
+        project.targetAudience.toLowerCase().includes(s.toLowerCase())
+      )
     );
   },
 };

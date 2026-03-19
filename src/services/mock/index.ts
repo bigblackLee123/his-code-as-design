@@ -5,3 +5,4 @@ export { scaleService } from "./scaleService";
 export { contraindicationService } from "./contraindicationService";
 export { aiService } from "./aiService";
 export { therapyService } from "./therapyService";
+export { symptomService } from "./symptomService";

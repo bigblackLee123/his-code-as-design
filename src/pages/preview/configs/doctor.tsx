@@ -22,8 +22,9 @@ const mockPatient: Patient = {
 
 const mockConsultation: ConsultationData = {
   contraindications: [
-    { code: "CI002", name: "阴虚火旺", pinyin: "yinxuhuowang", pinyinInitial: "YXHW", category: "体质禁忌" },
+    { code: "CI001", name: "严重心律失常", pinyin: "yanzhongxinlvshichang", pinyinInitial: "YZXLSC", category: "心血管" },
   ],
+  symptoms: [],
   scaleResults: null,
   aiSuggestion: null,
 };
@@ -76,7 +77,7 @@ registerPreview({
       name: "StatusTransition",
       description: "状态流转（转治疗队列）",
       render: () => (
-        <StatusTransition patient={mockPatient} selectedPackage={null} onComplete={() => alert("流转完成")} />
+        <StatusTransition patient={mockPatient} selectedProjects={[]} onComplete={() => alert("流转完成")} />
       ),
     },
   ],

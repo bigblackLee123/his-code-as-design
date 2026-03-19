@@ -11,7 +11,7 @@ export interface TreatmentPatientViewProps {
 }
 
 export function TreatmentPatientView({ patient }: TreatmentPatientViewProps) {
-  const { vitalSigns, contraindications, therapyPackage } = patient;
+  const { vitalSigns, contraindications, projects } = patient;
   const { alerts } = validateVitalSigns(vitalSigns);
   const showGlobalAlert = hasVitalSignsAlert(vitalSigns);
 
@@ -83,19 +83,19 @@ export function TreatmentPatientView({ patient }: TreatmentPatientViewProps) {
         </div>
       )}
 
-      {/* 疗愈套餐 */}
+      {/* 疗愈项目 */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-1">
           <Music className="h-4 w-4 text-primary-500" aria-hidden="true" />
           <span className="text-xs font-medium text-neutral-800 leading-tight">
-            疗愈套餐：{therapyPackage.name}
+            疗愈项目
           </span>
           <Badge variant="outline" className="text-xs leading-tight ml-1">
-            {therapyPackage.projects.length} 个项目
+            {projects.length} 个项目
           </Badge>
         </div>
         <div className="flex flex-col gap-1">
-          {therapyPackage.projects.map((proj, idx) => (
+          {projects.map((proj, idx) => (
             <div key={proj.id} className="flex items-center gap-2 rounded-md bg-neutral-50 px-2 py-1 text-xs leading-tight">
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700 shrink-0">
                 {idx + 1}

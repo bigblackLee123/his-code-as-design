@@ -1,132 +1,36 @@
 import type { ScaleTemplate } from "../../types";
 
-/** 量表模板数据（2 个模板，含单选、多选、滑块、文本题目） */
+/**
+ * 量表模板数据 — 与后端 seed.sql 对齐
+ * 匹兹堡睡眠质量指数(PSQI) 为主量表
+ */
 export const mockScaleTemplates: ScaleTemplate[] = [
   {
     id: "SCALE001",
-    name: "疼痛评估量表",
-    description: "用于评估患者当前疼痛程度、性质和部位，辅助中医辨证施治",
+    name: "匹兹堡睡眠质量指数(PSQI)",
+    description: "评估近一个月的睡眠质量",
     questions: [
       {
         id: "Q001",
-        text: "请评估您当前的疼痛程度（0 为无痛，10 为剧烈疼痛）",
-        type: "slider",
+        text: "近一个月，您通常几点上床睡觉？",
+        type: "text",
         required: true,
-        sliderConfig: { min: 0, max: 10, step: 1 },
       },
       {
         id: "Q002",
-        text: "疼痛的主要性质是什么？",
+        text: "近一个月，您的睡眠质量如何？",
         type: "single-choice",
         required: true,
         options: [
-          { value: "zhangton", label: "胀痛", score: 1 },
-          { value: "citon", label: "刺痛", score: 2 },
-          { value: "suanton", label: "酸痛", score: 1 },
-          { value: "zhongton", label: "重痛", score: 1 },
-          { value: "lenton", label: "冷痛", score: 2 },
-          { value: "reton", label: "灼痛", score: 2 },
+          { value: "0", label: "很好", score: 0 },
+          { value: "1", label: "较好", score: 1 },
+          { value: "2", label: "较差", score: 2 },
+          { value: "3", label: "很差", score: 3 },
         ],
       },
       {
         id: "Q003",
-        text: "疼痛的主要部位有哪些？（可多选）",
-        type: "multi-choice",
-        required: true,
-        options: [
-          { value: "head", label: "头部" },
-          { value: "neck", label: "颈部" },
-          { value: "shoulder", label: "肩部" },
-          { value: "back", label: "腰背部" },
-          { value: "abdomen", label: "腹部" },
-          { value: "limbs", label: "四肢关节" },
-          { value: "chest", label: "胸部" },
-        ],
-      },
-      {
-        id: "Q004",
-        text: "疼痛发作的时间规律是什么？",
-        type: "single-choice",
-        required: true,
-        options: [
-          { value: "morning", label: "晨起加重", score: 1 },
-          { value: "night", label: "夜间加重", score: 2 },
-          { value: "afternoon", label: "午后加重", score: 1 },
-          { value: "constant", label: "持续不变", score: 3 },
-          { value: "irregular", label: "无明显规律", score: 1 },
-        ],
-      },
-      {
-        id: "Q005",
-        text: "请补充描述疼痛的其他特征或伴随症状",
-        type: "text",
-        required: false,
-      },
-    ],
-  },
-  {
-    id: "SCALE002",
-    name: "中医体质辨识量表",
-    description: "基于中华中医药学会《中医体质分类与判定》标准，评估患者体质类型",
-    questions: [
-      {
-        id: "Q101",
-        text: "您是否容易感到疲乏无力？",
-        type: "single-choice",
-        required: true,
-        options: [
-          { value: "never", label: "没有", score: 1 },
-          { value: "rarely", label: "很少", score: 2 },
-          { value: "sometimes", label: "有时", score: 3 },
-          { value: "often", label: "经常", score: 4 },
-          { value: "always", label: "总是", score: 5 },
-        ],
-      },
-      {
-        id: "Q102",
-        text: "您是否容易气短或呼吸短促？",
-        type: "single-choice",
-        required: true,
-        options: [
-          { value: "never", label: "没有", score: 1 },
-          { value: "rarely", label: "很少", score: 2 },
-          { value: "sometimes", label: "有时", score: 3 },
-          { value: "often", label: "经常", score: 4 },
-          { value: "always", label: "总是", score: 5 },
-        ],
-      },
-      {
-        id: "Q103",
-        text: "您手脚发凉的程度如何？（0 为不凉，10 为冰冷）",
-        type: "slider",
-        required: true,
-        sliderConfig: { min: 0, max: 10, step: 1 },
-      },
-      {
-        id: "Q104",
-        text: "您目前存在以下哪些症状？（可多选）",
-        type: "multi-choice",
-        required: true,
-        options: [
-          { value: "dry-mouth", label: "口干咽燥", score: 2 },
-          { value: "insomnia", label: "失眠多梦", score: 2 },
-          { value: "night-sweat", label: "盗汗", score: 3 },
-          { value: "cold-limbs", label: "畏寒肢冷", score: 3 },
-          { value: "loose-stool", label: "大便溏薄", score: 2 },
-          { value: "edema", label: "肢体浮肿", score: 2 },
-          { value: "chest-tightness", label: "胸闷", score: 2 },
-          { value: "dizziness", label: "头晕目眩", score: 2 },
-        ],
-      },
-      {
-        id: "Q105",
-        text: "请描述您的饮食偏好和消化情况",
-        type: "text",
-        required: false,
-      },
-      {
-        id: "Q106",
-        text: "您的睡眠质量如何？（0 为极差，10 为极好）",
+        text: "近一个月，您的日间精神状态如何？",
         type: "slider",
         required: true,
         sliderConfig: { min: 0, max: 10, step: 1 },

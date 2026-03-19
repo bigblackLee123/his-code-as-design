@@ -2,11 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService, patientService } from "@/services";
+import { queueService, patientService, therapyService, contraindicationService } from "@/services";
 import { useQueueRealtime } from "@/hooks/useQueueRealtime";
 import type { TreatmentPatient, QueueItem } from "@/services/types";
 import { Syringe, Phone } from "lucide-react";
-import { mockTherapyPackages } from "@/services/mock/data/therapyPackages";
 
 export interface TreatmentQueueProps {
   onPatientCalled: (patient: TreatmentPatient) => void;
@@ -23,26 +22,24 @@ function formatWaitingTime(enqueuedAt: string): string {
   return `${hours}小时${remainMinutes}分钟`;
 }
 
-/** Build a mock TreatmentPatient from base patient data */
-function buildMockTreatmentPatient(
+/** 从真实服务构建 TreatmentPatient */
+async function buildTreatmentPatient(
   patient: NonNullable<Awaited<ReturnType<typeof patientService.getById>>>,
-  _prescriptionType?: string
-): TreatmentPatient {
+): Promise<TreatmentPatient> {
+  const [vitals, projects] = await Promise.all([
+    patientService.getVitalSigns(patient.id),
+    therapyService.getProjects(),
+  ]);
+
   return {
     ...patient,
     status: "treating",
-    vitalSigns: {
-      systolicBP: 128,
-      diastolicBP: 82,
-      heartRate: 76,
-      recordedAt: new Date().toISOString(),
-      recordedBy: "分诊护士",
+    vitalSigns: vitals ?? {
+      systolicBP: 0, diastolicBP: 0, heartRate: 0,
+      recordedAt: new Date().toISOString(), recordedBy: "未记录",
     },
-    contraindications: [
-      { code: "C001", name: "孕妇禁用", pinyin: "yunfujinyong", pinyinInitial: "yfjy", category: "妊娠" },
-      { code: "C005", name: "高血压慎用", pinyin: "gaoxueyashenyong", pinyinInitial: "gxysy", category: "心血管" },
-    ],
-    therapyPackage: mockTherapyPackages[0]!,
+    contraindications: [],
+    projects: projects.slice(0, 3),
   };
 }
 
@@ -76,7 +73,7 @@ export function TreatmentQueue({ onPatientCalled, disabled }: TreatmentQueueProp
 
       const patient = await patientService.getById(queueItem.patientId);
       if (patient) {
-        const treatmentPatient = buildMockTreatmentPatient(patient, queueItem.prescriptionType);
+        const treatmentPatient = await buildTreatmentPatient(patient);
         onPatientCalled(treatmentPatient);
       }
       await loadQueue();

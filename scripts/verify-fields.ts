@@ -30,12 +30,10 @@ const frontendTypes: Record<string, string[]> = {
   TherapyProject: [
     "id", "region", "name", "mechanism", "guidanceScript", "bpm",
     "mood", "energyLevel", "hasGuidance", "hasScenario", "targetAudience",
-  ],
-  TherapyPackage: [
-    "id", "name", "targetAudience", "matchedSymptoms", "projects",
+    "contraindications",
   ],
   AITherapySuggestion: [
-    "id", "packageId", "packageName", "reason", "confidence", "generatedAt",
+    "id", "projectIds", "projectNames", "reason", "confidence", "generatedAt",
   ],
   QueueItem: [
     "id", "patientId", "patientName", "insuranceCardNo",
@@ -46,7 +44,7 @@ const frontendTypes: Record<string, string[]> = {
     "preVitals", "postVitals", "postScaleResult",
   ],
   ConsultationData: [
-    "contraindications", "scaleResults", "aiSuggestion",
+    "contraindications", "symptoms", "scaleResults", "aiSuggestion",
   ],
   // 旧类型（仍在 types.ts 中保留，outpatient-prescription 页面使用）
   AISuggestion: [
@@ -91,13 +89,7 @@ const dbTables: Record<string, string[]> = {
   therapy_projects: [
     "id", "region", "name", "mechanism", "guidance_script", "bpm",
     "mood", "energy_level", "has_guidance", "has_scenario",
-    "target_audience", "notes", "is_internal",
-  ],
-  therapy_packages: [
-    "id", "name", "target_audience", "matched_symptoms",
-  ],
-  therapy_package_items: [
-    "package_id", "project_id", "sort_order",
+    "target_audience", "notes", "is_internal", "contraindications",
   ],
   consultations: [
     "id", "patient_id", "status", "created_at",
@@ -110,7 +102,7 @@ const dbTables: Record<string, string[]> = {
     "herbs", "usage", "notes", "confidence", "generated_at",
   ],
   prescriptions: [
-    "id", "consultation_id", "therapy_package_id",
+    "id", "consultation_id",
     "meta", "herbs", "total_amount", "created_at",
   ],
   queue_items: [
@@ -140,7 +132,6 @@ const typeToTable: Record<string, string> = {
   ScaleQuestion: "scale_questions",
   ScaleResult: "scale_results",
   TherapyProject: "therapy_projects",
-  TherapyPackage: "therapy_packages",
   QueueItem: "queue_items",
   TreatmentRecord: "treatment_records",
   AISuggestion: "ai_suggestions",
@@ -159,9 +150,6 @@ const fieldOverrides: Record<string, Record<string, string | null>> = {
     heartRate: "heart_rate",
     recordedAt: "recorded_at",
     recordedBy: "recorded_by",
-  },
-  TherapyPackage: {
-    projects: null, // 关联表 therapy_package_items，非直接字段
   },
   QueueItem: {
     patientName: null,       // 前端 join 展示用，DB 无此字段

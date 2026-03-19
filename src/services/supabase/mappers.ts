@@ -1,4 +1,4 @@
-// src/services/supabase/mappers.ts — Supabase ↔ Frontend 双向字段映射器
+// src/services/supabase/mappers.ts — 临床数据映射（Patient / VitalSigns / Contraindication / Scale / AI）
 import type { Tables, TablesInsert } from "@/types/supabase";
 import type {
   Patient,
@@ -8,13 +8,16 @@ import type {
   ScaleQuestion,
   ScaleOption,
   ScaleResult,
-  QueueItem,
   AISuggestion,
   AISuggestedHerb,
-  TherapyProject,
-  TherapyPackage,
-  PrescriptionData,
 } from "../types";
+
+// Re-export flow mappers for backward compatibility
+export {
+  toQueueItem,
+  toTherapyProject,
+  fromPrescription,
+} from "./mappersFlow";
 
 // ─── Patient ────────────────────────────────────────────────────────
 
@@ -143,24 +146,6 @@ export function fromScaleResult(
   };
 }
 
-// ─── QueueItem ──────────────────────────────────────────────────────
-
-export function toQueueItem(
-  row: Tables<"queue_items"> & {
-    patients: { name: string; insurance_card_no: string | null };
-  }
-): QueueItem {
-  return {
-    id: row.id,
-    patientId: row.patient_id,
-    patientName: row.patients.name,
-    insuranceCardNo: row.patients.insurance_card_no ?? "",
-    queueNumber: row.queue_number,
-    status: row.status,
-    enqueuedAt: row.enqueued_at,
-  };
-}
-
 // ─── AISuggestion ───────────────────────────────────────────────────
 
 export function toAISuggestion(row: Tables<"ai_suggestions">): AISuggestion {
@@ -173,55 +158,5 @@ export function toAISuggestion(row: Tables<"ai_suggestions">): AISuggestion {
     notes: row.notes ?? "",
     confidence: row.confidence ?? 0,
     generatedAt: row.generated_at,
-  };
-}
-
-// ─── TherapyProject ─────────────────────────────────────────────────
-
-export function toTherapyProject(
-  row: Tables<"therapy_projects">
-): TherapyProject {
-  return {
-    id: row.id,
-    region: row.region ?? "",
-    name: row.name,
-    mechanism: row.mechanism ?? "",
-    guidanceScript: row.guidance_script ?? null,
-    bpm: row.bpm ?? null,
-    mood: row.mood ?? "",
-    energyLevel: row.energy_level ?? "",
-    hasGuidance: row.has_guidance,
-    hasScenario: row.has_scenario,
-    targetAudience: row.target_audience ?? "",
-  };
-}
-
-// ─── TherapyPackage ─────────────────────────────────────────────────
-
-export function toTherapyPackage(
-  row: Tables<"therapy_packages">,
-  projects: TherapyProject[]
-): TherapyPackage {
-  return {
-    id: row.id,
-    name: row.name,
-    targetAudience: row.target_audience ?? "",
-    matchedSymptoms: row.matched_symptoms ?? "",
-    pinyinInitial: row.pinyin_initial ?? "",
-    projects,
-  };
-}
-
-// ─── Prescription (write-only) ──────────────────────────────────────
-
-export function fromPrescription(
-  prescription: PrescriptionData,
-  consultationId: string
-): TablesInsert<"prescriptions"> {
-  return {
-    consultation_id: consultationId,
-    meta: prescription.meta as unknown as TablesInsert<"prescriptions">["meta"],
-    herbs: prescription.herbs as unknown as TablesInsert<"prescriptions">["herbs"],
-    total_amount: prescription.totalAmount,
   };
 }
