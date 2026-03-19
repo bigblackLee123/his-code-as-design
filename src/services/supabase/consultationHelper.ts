@@ -14,7 +14,7 @@ export const consultationHelper = {
     return data!.id;
   },
 
-  /** 获取患者当前活跃 Consultation ID */
+  /** 获取患者当前活跃 Consultation ID，没有则自动创建 */
   async getActiveId(patientId: string): Promise<string> {
     const { data, error } = await supabase
       .from("consultations")
@@ -23,12 +23,13 @@ export const consultationHelper = {
       .eq("status", "in-progress")
       .order("created_at", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     throwIfError(error, { table: "consultations", operation: "select" });
 
     if (!data) {
-      throw new Error("该患者没有活跃的诊疗会话");
+      // 没有活跃会话，自动创建一个
+      return this.create(patientId);
     }
 
     return data.id;

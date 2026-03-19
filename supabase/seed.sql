@@ -11,9 +11,8 @@ DECLARE
   v_contra_1 UUID := 'c0000000-0000-0000-0000-000000000001';
   v_contra_2 UUID := 'c0000000-0000-0000-0000-000000000002';
   v_scale_tpl_id UUID := 'd0000000-0000-0000-0000-000000000001';
-  v_therapy_proj_1 UUID := 'e0000000-0000-0000-0000-000000000001';
-  v_therapy_proj_2 UUID := 'e0000000-0000-0000-0000-000000000002';
-  v_therapy_pkg_id UUID := 'f0000000-0000-0000-0000-000000000001';
+  -- 疗愈数据已迁移到 seed_therapy.sql，此处仅引用套餐 UUID
+  v_therapy_pkg_id UUID := 'f0000000-0000-0000-0000-000000000001'; -- 失眠调理套餐
 BEGIN
 
 -- 模块一：基建数据
@@ -40,17 +39,7 @@ INSERT INTO scale_questions (template_id, sort_order, text, type, required, opti
 UPDATE scale_questions SET slider_config = '{"min":0,"max":10,"step":1}'
 WHERE template_id = v_scale_tpl_id AND type = 'slider';
 
--- 模块二：疗愈内容库
-INSERT INTO therapy_projects (id, region, name, mechanism, guidance_script, bpm, mood, energy_level, has_guidance, has_scenario, target_audience) VALUES
-(v_therapy_proj_1, '睡眠区', '深度放松引导', '通过渐进式肌肉放松降低交感神经兴奋', '请闭上眼睛，深呼吸三次...', 60, '平静', '深度镇静', true, true, '18岁以上'),
-(v_therapy_proj_2, '情志区', '正念冥想', '通过专注呼吸训练提升副交感神经活性', NULL, 50, '安宁', '平静放松', false, false, '18岁以上');
-
-INSERT INTO therapy_packages (id, name, target_audience, matched_symptoms)
-VALUES (v_therapy_pkg_id, '失眠调理套餐', '长期失眠、入睡困难、早醒人群', '失眠,入睡困难,早醒,多梦');
-
-INSERT INTO therapy_package_items (package_id, project_id, sort_order) VALUES
-(v_therapy_pkg_id, v_therapy_proj_1, 1),
-(v_therapy_pkg_id, v_therapy_proj_2, 2);
+-- 模块二：疗愈内容库（完整数据见 seed_therapy.sql）
 
 -- 模块三：业务流转
 -- 就诊记录
