@@ -30,6 +30,7 @@ export function TreatmentTerminalPage() {
   const [consultationId, setConsultationId] = useState<string | null>(null);
   const [treatmentState, setTreatmentState] = useState<TreatmentState>(INITIAL_TREATMENT);
   const [postVitals, setPostVitals] = useState<VitalSigns | null>(null);
+  const [postScaleResult, setPostScaleResult] = useState<ScaleResult | null>(null);
   const [_roomSteps, setRoomSteps] = useState<PrescriptionStep[]>([]);
 
   const handleRegionSelect = useCallback((r: string) => {
@@ -62,6 +63,7 @@ export function TreatmentTerminalPage() {
     setRoomSteps(checkIn.stepsInThisRoom);
     setTreatmentState(INITIAL_TREATMENT);
     setPostVitals(null);
+    setPostScaleResult(null);
     setPageStatus("checked-in");
   }, []);
 
@@ -92,7 +94,8 @@ export function TreatmentTerminalPage() {
     setPageStatus("post-scale");
   }, []);
 
-  const handlePostScaleSubmit = useCallback((_results: ScaleResult) => {
+  const handlePostScaleSubmit = useCallback((results: ScaleResult) => {
+    setPostScaleResult(results);
     setPageStatus("completing");
   }, []);
 
@@ -102,6 +105,7 @@ export function TreatmentTerminalPage() {
     setRoomSteps([]);
     setTreatmentState(INITIAL_TREATMENT);
     setPostVitals(null);
+    setPostScaleResult(null);
     setPageStatus("idle");
   }, []);
 
@@ -161,6 +165,7 @@ export function TreatmentTerminalPage() {
                 patient={currentPatient}
                 treatmentState={treatmentState}
                 postVitals={postVitals}
+                postScaleResult={postScaleResult}
                 onComplete={handleComplete}
               />
             )}

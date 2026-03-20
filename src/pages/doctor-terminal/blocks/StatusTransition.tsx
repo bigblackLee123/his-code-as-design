@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService, scaleService, contraindicationService, prescriptionService } from "@/services";
-import { consultationHelper } from "@/services/supabase/consultationHelper";
+import { queueService, prescriptionService } from "@/services";
 import type { Patient, QueueItem, TherapyProject, ConsultationData, PrescriptionData } from "@/services/types";
 import { ArrowRight, CheckCircle, AlertTriangle, RotateCcw, ListMusic } from "lucide-react";
 
@@ -36,23 +35,13 @@ export function StatusTransition({ patient, selectedProjects, consultationData, 
     setErrorMsg("");
 
     try {
-      const consultationId = await consultationHelper.getActiveId(patient.id);
+      // 量表 & 禁忌症已由 DoctorTerminalPage 即时持久化，此处不再重复保存
 
-      // 1. 保存量表结果
-      if (consultationData.scaleResults) {
-        await scaleService.saveResult(patient.id, consultationData.scaleResults, "pre");
-      }
-
-      // 2. 保存禁忌症关联
-      if (consultationData.contraindications.length > 0) {
-        await contraindicationService.saveForConsultation(consultationId, consultationData.contraindications);
-      }
-
-      // 3. 保存处方 + 拆解 steps
+      // 1. 保存处方 + 拆解 steps
       const prescriptionData = buildPrescriptionData(selectedProjects);
       await prescriptionService.saveWithSteps(patient.id, prescriptionData, selectedProjects);
 
-      // 4. 入治疗队列
+      // 2. 入治疗队列
       const item = await queueService.enqueueTreatment(patient.id);
       setQueueItem(item);
       setState("success");

@@ -2,7 +2,8 @@ import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { aiService, patientService } from "@/services";
+import { aiService } from "@/services";
+import { consultationHelper } from "@/services/supabase/consultationHelper";
 import type { Patient, ConsultationData, AITherapySuggestion } from "@/services/types";
 import { Sparkles, RotateCcw, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -30,18 +31,15 @@ export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISugg
     abortRef.current = controller;
 
     try {
-      const vitals = await patientService.getVitalSigns(patient.id);
-      if (!vitals) {
-        setError("未找到患者生理数据，无法获取 AI 建议");
-        setLoading(false);
-        return;
-      }
+      // consultationId 模式：Edge Function 从 DB 聚合完整数据
+      const consultationId = await consultationHelper.getActiveId(patient.id);
 
       const result = await Promise.race([
         aiService.getTherapySuggestion({
-          vitals,
-          contraindications: consultationData.contraindications,
-          scaleResult: consultationData.scaleResults,
+          consultationId,
+          vitals: { systolicBP: 0, diastolicBP: 0, heartRate: 0, recordedAt: "", recordedBy: "" },
+          contraindications: [],
+          scaleResult: null,
         }),
         new Promise<never>((_, reject) => {
           const timer = setTimeout(() => reject(new Error("请求超时")), TIMEOUT_MS);
@@ -62,7 +60,7 @@ export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISugg
       }
       abortRef.current = null;
     }
-  }, [patient.id, consultationData.contraindications, consultationData.scaleResults]);
+  }, [patient.id]);
 
   return (
     <div className="flex flex-col gap-2">

@@ -2,15 +2,16 @@ import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService } from "@/services";
+import { treatmentQueueService } from "@/services/supabase/treatmentQueueService";
 import { calculateVitalSignsChange } from "@/lib/vitalSignsValidation";
-import type { TreatmentPatient, TreatmentState, VitalSigns } from "@/services/types";
+import type { TreatmentPatient, TreatmentState, VitalSigns, ScaleResult } from "@/services/types";
 import { CheckCircle, AlertTriangle, RotateCcw, Timer } from "lucide-react";
 
 export interface QueueCompleteProps {
   patient: TreatmentPatient;
   treatmentState: TreatmentState;
   postVitals?: VitalSigns | null;
+  postScaleResult?: ScaleResult | null;
   onComplete: () => void;
 }
 
@@ -26,7 +27,7 @@ function formatDuration(startTime: Date | null, endTime: Date | null): string {
   return `${minutes}分${seconds}秒`;
 }
 
-export function QueueComplete({ patient, treatmentState, postVitals, onComplete }: QueueCompleteProps) {
+export function QueueComplete({ patient, treatmentState, postVitals, postScaleResult, onComplete }: QueueCompleteProps) {
   const [state, setState] = useState<CompleteState>("confirm");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -34,9 +35,11 @@ export function QueueComplete({ patient, treatmentState, postVitals, onComplete 
     setState("loading");
     setErrorMsg("");
     try {
-      // Use patient id to find the queue item — completeTreatment expects queueItemId
-      // In mock service, we pass the patient id as a best-effort match
-      await queueService.completeTreatment(patient.id);
+      await treatmentQueueService.completeTreatment(
+        patient.id,
+        postVitals ?? undefined,
+        postScaleResult ?? undefined
+      );
       setState("success");
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "出队失败，请重试");
@@ -133,18 +136,18 @@ export function QueueComplete({ patient, treatmentState, postVitals, onComplete 
 
           <span className="text-neutral-600">收缩压</span>
           <span className="font-mono text-neutral-700">{preVitals.systolicBP} mmHg</span>
-          <span className="font-mono text-neutral-400">--</span>
-          <span className="text-neutral-400">--</span>
+          <span className="font-mono text-neutral-700">{postVitals?.systolicBP ? `${postVitals.systolicBP} mmHg` : "--"}</span>
+          <span className="font-mono text-neutral-500">{postVitals?.systolicBP ? `${postVitals.systolicBP - preVitals.systolicBP}` : "--"}</span>
 
           <span className="text-neutral-600">舒张压</span>
           <span className="font-mono text-neutral-700">{preVitals.diastolicBP} mmHg</span>
-          <span className="font-mono text-neutral-400">--</span>
-          <span className="text-neutral-400">--</span>
+          <span className="font-mono text-neutral-700">{postVitals?.diastolicBP ? `${postVitals.diastolicBP} mmHg` : "--"}</span>
+          <span className="font-mono text-neutral-500">{postVitals?.diastolicBP ? `${postVitals.diastolicBP - preVitals.diastolicBP}` : "--"}</span>
 
           <span className="text-neutral-600">心率</span>
           <span className="font-mono text-neutral-700">{preVitals.heartRate} 次/分</span>
-          <span className="font-mono text-neutral-400">--</span>
-          <span className="text-neutral-400">--</span>
+          <span className="font-mono text-neutral-700">{postVitals?.heartRate ? `${postVitals.heartRate} 次/分` : "--"}</span>
+          <span className="font-mono text-neutral-500">{postVitals?.heartRate ? `${postVitals.heartRate - preVitals.heartRate}` : "--"}</span>
         </div>
       </div>
 

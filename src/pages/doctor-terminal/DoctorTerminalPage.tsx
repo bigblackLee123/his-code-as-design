@@ -17,7 +17,8 @@ import type {
   ScaleResult,
   TherapyProject,
 } from "@/services/types";
-import { therapyService, patientService } from "@/services";
+import { therapyService, patientService, contraindicationService, scaleService } from "@/services";
+import { consultationHelper } from "@/services/supabase/consultationHelper";
 
 const useMock = import.meta.env.VITE_USE_MOCK === "true";
 
@@ -78,17 +79,30 @@ export function DoctorTerminalPage() {
     setShowTransition(false);
   }, []);
 
-  const handleContraindicationChange = useCallback((items: Contraindication[]) => {
+  const handleContraindicationChange = useCallback(async (items: Contraindication[]) => {
     setConsultationData((prev) => ({ ...prev, contraindications: items }));
-  }, []);
+    // 即时持久化到 DB（AI 聚合数据依赖此表）
+    if (currentPatient) {
+      try {
+        const cId = await consultationHelper.getActiveId(currentPatient.id);
+        await contraindicationService.saveForConsultation(cId, items);
+      } catch { /* 静默失败，不阻塞 UI */ }
+    }
+  }, [currentPatient]);
 
   const handleSymptomChange = useCallback((items: Symptom[]) => {
     setConsultationData((prev) => ({ ...prev, symptoms: items }));
   }, []);
 
-  const handleScaleSubmit = useCallback((results: ScaleResult) => {
+  const handleScaleSubmit = useCallback(async (results: ScaleResult) => {
     setConsultationData((prev) => ({ ...prev, scaleResults: results }));
-  }, []);
+    // 即时持久化到 DB（AI 聚合数据依赖此表）
+    if (currentPatient) {
+      try {
+        await scaleService.saveResult(currentPatient.id, results, "pre");
+      } catch { /* 静默失败，不阻塞 UI */ }
+    }
+  }, [currentPatient]);
 
   const handleAdoptSuggestion = useCallback(async (suggestion: AITherapySuggestion) => {
     setConsultationData((prev) => ({ ...prev, aiSuggestion: suggestion }));
