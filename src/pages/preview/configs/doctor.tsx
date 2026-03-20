@@ -77,7 +77,12 @@ registerPreview({
       name: "StatusTransition",
       description: "状态流转（转治疗队列）",
       render: () => (
-        <StatusTransition patient={mockPatient} selectedProjects={[]} onComplete={() => alert("流转完成")} />
+        <StatusTransition
+          patient={mockPatient}
+          selectedProjects={[]}
+          consultationData={mockConsultation}
+          onComplete={() => alert("流转完成")}
+        />
       ),
     },
   ],

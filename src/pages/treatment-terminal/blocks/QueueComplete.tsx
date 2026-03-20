@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { MaskedText } from "@/components/his/MaskedText";
 import { treatmentQueueService } from "@/services/supabase/treatmentQueueService";
-import { calculateVitalSignsChange } from "@/lib/vitalSignsValidation";
 import type { TreatmentPatient, TreatmentState, VitalSigns, ScaleResult } from "@/services/types";
 import { CheckCircle, AlertTriangle, RotateCcw, Timer } from "lucide-react";
 

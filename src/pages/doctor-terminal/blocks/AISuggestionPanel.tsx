@@ -16,7 +16,7 @@ export interface AISuggestionPanelProps {
   onAdopt: (suggestion: AITherapySuggestion) => void;
 }
 
-export function AISuggestionPanel({ patient, consultationData, onAdopt }: AISuggestionPanelProps) {
+export function AISuggestionPanel({ patient, onAdopt }: AISuggestionPanelProps) {
   const [suggestion, setSuggestion] = useState<AITherapySuggestion | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -60,9 +60,9 @@ registerPreview({
   blocks: [
     {
       name: "TreatmentQueue",
-      description: "治疗队列（叫号）",
+      description: "治疗队列（刷卡签到）",
       render: () => (
-        <TreatmentQueue onPatientCalled={() => alert("叫号成功")} disabled={false} />
+        <TreatmentQueue region="睡眠区" onCheckIn={() => alert("签到成功")} disabled={false} />
       ),
     },
     {
