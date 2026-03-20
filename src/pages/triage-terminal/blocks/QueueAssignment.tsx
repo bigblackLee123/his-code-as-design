@@ -34,21 +34,33 @@ export function QueueAssignment({ patient, vitalSigns, onComplete }: QueueAssign
       ]);
       setWaitingCount(queue.length);
       setMaxSize(max);
-      setStatus(queue.length >= max ? "full" : "preview");
     } catch {
-      setErrorMsg("加载队列信息失败");
-      setStatus("error");
+      // 静默失败，保持当前计数
     }
   }, []);
 
+  // 初始加载时检查队列是否已满
   useEffect(() => {
-    loadQueueInfo();
-  }, [loadQueueInfo]);
+    (async () => {
+      try {
+        const [queue, max] = await Promise.all([
+          queueService.getWaitingQueue(DEPARTMENT_ID),
+          queueService.getMaxQueueSize(DEPARTMENT_ID),
+        ]);
+        setWaitingCount(queue.length);
+        setMaxSize(max);
+        setStatus(queue.length >= max ? "full" : "preview");
+      } catch {
+        setErrorMsg("加载队列信息失败");
+        setStatus("error");
+      }
+    })();
+  }, []);
 
   // Realtime: update waiting count on queue changes
   useQueueRealtime(useCallback(() => {
-    if (status !== "assigning") loadQueueInfo();
-  }, [loadQueueInfo, status]));
+    loadQueueInfo();
+  }, [loadQueueInfo]));
 
   const handleAssign = async () => {
     setStatus("assigning");

@@ -244,5 +244,6 @@ END $$;
 INSERT INTO system_config (key, value, description) VALUES
 ('DASHSCOPE_API_KEY', 'sk-placeholder', '百炼平台 API Key（请替换为真实值）'),
 ('AI_MODEL_NAME', 'qwen3.5-plus', '默认 AI 模型名称'),
-('AI_BASE_URL', 'https://dashscope.aliyuncs.com/api/v2/apps/protocols/compatible-mode/v1', '百炼 API 基础 URL')
+('AI_BASE_URL', 'https://dashscope.aliyuncs.com/api/v2/apps/protocols/compatible-mode/v1', '百炼 API 基础 URL'),
+('BAILIAN_APP_ID', 'app-placeholder', '百炼应用 ID（绑定知识库 + 模型）')
 ON CONFLICT (key) DO NOTHING;

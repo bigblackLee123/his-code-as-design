@@ -7,15 +7,28 @@ import type {
 import { supabase } from "./client";
 
 export const aiService = {
-  /** 调用 Supabase Edge Function 获取 AI 疗愈套餐建议 */
+  /**
+   * 获取 AI 疗愈建议
+   * 优先用 consultationId（Edge Function 自行查 DB 聚合数据）
+   * 兼容旧模式：直传 vitals / contraindications / scaleResult
+   */
   async getTherapySuggestion(data: {
+    consultationId?: string;
     vitals: VitalSigns;
     contraindications: Contraindication[];
     scaleResult: ScaleResult | null;
   }): Promise<AITherapySuggestion> {
+    const body = data.consultationId
+      ? { consultationId: data.consultationId }
+      : {
+          vitals: data.vitals,
+          contraindications: data.contraindications,
+          scaleResult: data.scaleResult,
+        };
+
     const { data: response, error } = await supabase.functions.invoke(
       "ai-therapy-suggestion",
-      { body: data }
+      { body }
     );
 
     if (error) {
@@ -24,31 +37,17 @@ export const aiService = {
       );
     }
 
-    const suggestion: AITherapySuggestion = {
+    return {
       id: response.id ?? `AI-${Date.now()}`,
-      projectIds: Array.isArray(response.projectIds) ? response.projectIds : [],
+      projectIds: Array.isArray(response.projectIds)
+        ? response.projectIds
+        : [],
       projectNames: Array.isArray(response.projectNames)
         ? response.projectNames
         : ["综合疗愈方案"],
-      reason: response.reason,
-      confidence: response.confidence,
+      reason: response.reason ?? "",
+      confidence: response.confidence ?? 0.5,
       generatedAt: response.generatedAt ?? new Date().toISOString(),
     };
-
-    // TODO: 将 AI 建议写入 ai_suggestions 表，关联当前活跃 Consultation
-    // 当前 mock 接口未传入 patientId，无法查找活跃 Consultation。
-    // 后续需要补充 patientId 参数或从 Edge Function 响应中获取 consultation 上下文。
-    // 示例：
-    // const consultationId = await consultationHelper.getActiveId(patientId);
-    // await supabase.from("ai_suggestions").insert({
-    //   consultation_id: consultationId,
-    //   herbs: null,
-    //   usage: null,
-    //   notes: suggestion.reason,
-    //   confidence: suggestion.confidence,
-    //   generated_at: suggestion.generatedAt,
-    // });
-
-    return suggestion;
   },
 };
