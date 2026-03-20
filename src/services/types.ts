@@ -199,6 +199,35 @@ export interface TherapyProject {
   contraindications: string[];
 }
 
+/** 处方执行步骤（多房间流转核心） */
+export interface PrescriptionStep {
+  id: string;
+  prescriptionId: string;
+  projectId: string;
+  projectName: string;    // JOIN 冗余
+  region: string;
+  sortOrder: number;
+  status: "pending" | "in-progress" | "completed" | "skipped";
+  startedAt: string | null;
+  completedAt: string | null;
+  treatmentRecordId: string | null;
+}
+
+/** 房间签到结果 */
+export interface RoomCheckIn {
+  patient: Patient;
+  stepsInThisRoom: PrescriptionStep[];
+  allSteps: PrescriptionStep[];
+  remainingRooms: string[];
+}
+
+/** 房间完成检查结果 */
+export interface RoomCompleteResult {
+  allDone: boolean;
+  pendingRegions: string[];
+  pendingSteps: PrescriptionStep[];
+}
+
 /** AI 疗愈建议（推荐多个项目） */
 export interface AITherapySuggestion {
   id: string;

@@ -163,6 +163,7 @@ export function DoctorTerminalPage() {
               <StatusTransition
                 patient={currentPatient}
                 selectedProjects={selectedProjects}
+                consultationData={consultationData}
                 onComplete={handleTransitionComplete}
               />
             )}

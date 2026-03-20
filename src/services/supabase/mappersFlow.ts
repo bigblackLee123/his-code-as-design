@@ -1,9 +1,10 @@
-// src/services/supabase/mappersFlow.ts — 流程数据映射（Queue / TherapyProject / Prescription）
+// src/services/supabase/mappersFlow.ts — 流程数据映射（Queue / TherapyProject / Prescription / PrescriptionStep）
 import type { Tables, TablesInsert } from "@/types/supabase";
 import type {
   QueueItem,
   TherapyProject,
   PrescriptionData,
+  PrescriptionStep,
 } from "../types";
 
 // ─── QueueItem ──────────────────────────────────────────────────────
@@ -59,5 +60,41 @@ export function fromPrescription(
     meta: prescription.meta as unknown as TablesInsert<"prescriptions">["meta"],
     herbs: prescription.herbs as unknown as TablesInsert<"prescriptions">["herbs"],
     total_amount: prescription.totalAmount,
+  };
+}
+
+// ─── PrescriptionStep ───────────────────────────────────────────────
+
+export function toPrescriptionStep(
+  row: Tables<"prescription_steps"> & {
+    therapy_projects: { name: string; region: string | null };
+  }
+): PrescriptionStep {
+  return {
+    id: row.id,
+    prescriptionId: row.prescription_id,
+    projectId: row.project_id,
+    projectName: row.therapy_projects.name,
+    region: row.region,
+    sortOrder: row.sort_order,
+    status: row.status,
+    startedAt: row.started_at,
+    completedAt: row.completed_at,
+    treatmentRecordId: row.treatment_record_id,
+  };
+}
+
+export function fromPrescriptionStepInsert(
+  prescriptionId: string,
+  projectId: string,
+  region: string,
+  sortOrder: number
+): TablesInsert<"prescription_steps"> {
+  return {
+    prescription_id: prescriptionId,
+    project_id: projectId,
+    region,
+    sort_order: sortOrder,
+    status: "pending",
   };
 }

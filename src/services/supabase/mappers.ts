@@ -17,6 +17,8 @@ export {
   toQueueItem,
   toTherapyProject,
   fromPrescription,
+  toPrescriptionStep,
+  fromPrescriptionStepInsert,
 } from "./mappersFlow";
 
 // ─── Patient ────────────────────────────────────────────────────────

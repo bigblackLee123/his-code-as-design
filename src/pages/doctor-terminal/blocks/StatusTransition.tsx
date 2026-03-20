@@ -3,19 +3,30 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService } from "@/services";
-import type { Patient, QueueItem, TherapyProject } from "@/services/types";
+import { queueService, scaleService, contraindicationService, prescriptionService } from "@/services";
+import { consultationHelper } from "@/services/supabase/consultationHelper";
+import type { Patient, QueueItem, TherapyProject, ConsultationData, PrescriptionData } from "@/services/types";
 import { ArrowRight, CheckCircle, AlertTriangle, RotateCcw, ListMusic } from "lucide-react";
 
 export interface StatusTransitionProps {
   patient: Patient;
   selectedProjects: TherapyProject[];
+  consultationData: ConsultationData;
   onComplete: () => void;
 }
 
 type TransitionState = "confirm" | "loading" | "success" | "error";
 
-export function StatusTransition({ patient, selectedProjects, onComplete }: StatusTransitionProps) {
+/** 构建疗愈处方数据（meta/herbs 为兼容保留，核心在 prescription_steps） */
+function buildPrescriptionData(_projects: TherapyProject[]): PrescriptionData {
+  return {
+    meta: { route: "", usage: "", frequency: "", dosage: "", orderType: "疗愈处方", department: "音乐疗愈科", doses: 1 },
+    herbs: [],
+    totalAmount: 0,
+  };
+}
+
+export function StatusTransition({ patient, selectedProjects, consultationData, onComplete }: StatusTransitionProps) {
   const [state, setState] = useState<TransitionState>("confirm");
   const [queueItem, setQueueItem] = useState<QueueItem | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -25,6 +36,23 @@ export function StatusTransition({ patient, selectedProjects, onComplete }: Stat
     setErrorMsg("");
 
     try {
+      const consultationId = await consultationHelper.getActiveId(patient.id);
+
+      // 1. 保存量表结果
+      if (consultationData.scaleResults) {
+        await scaleService.saveResult(patient.id, consultationData.scaleResults, "pre");
+      }
+
+      // 2. 保存禁忌症关联
+      if (consultationData.contraindications.length > 0) {
+        await contraindicationService.saveForConsultation(consultationId, consultationData.contraindications);
+      }
+
+      // 3. 保存处方 + 拆解 steps
+      const prescriptionData = buildPrescriptionData(selectedProjects);
+      await prescriptionService.saveWithSteps(patient.id, prescriptionData, selectedProjects);
+
+      // 4. 入治疗队列
       const item = await queueService.enqueueTreatment(patient.id);
       setQueueItem(item);
       setState("success");
@@ -32,19 +60,16 @@ export function StatusTransition({ patient, selectedProjects, onComplete }: Stat
       setErrorMsg(err instanceof Error ? err.message : "流转失败，请重试");
       setState("error");
     }
-  }, [patient.id]);
+  }, [patient.id, consultationData, selectedProjects]);
 
   if (state === "confirm" || state === "loading") {
     return (
       <div className="flex flex-col gap-2 rounded-md border border-neutral-200 p-2">
         <div className="flex items-center gap-1">
           <ArrowRight className="h-4 w-4 text-primary-500" aria-hidden="true" />
-          <span className="text-xs font-medium text-neutral-800 leading-tight">
-            状态流转确认
-          </span>
+          <span className="text-xs font-medium text-neutral-800 leading-tight">状态流转确认</span>
         </div>
 
-        {/* Patient summary */}
         <div className="flex flex-col gap-1 rounded-md bg-neutral-50 p-2">
           <span className="text-xs font-medium text-neutral-600 leading-tight">患者信息</span>
           <div className="grid grid-cols-2 gap-1 text-xs leading-tight">
@@ -67,7 +92,6 @@ export function StatusTransition({ patient, selectedProjects, onComplete }: Stat
           </div>
         </div>
 
-        {/* Selected projects summary */}
         {selectedProjects.length > 0 && (
           <div className="flex flex-col gap-1 rounded-md bg-primary-50 p-2">
             <div className="flex items-center gap-1">
@@ -87,13 +111,7 @@ export function StatusTransition({ patient, selectedProjects, onComplete }: Stat
         )}
 
         <div className="flex justify-end">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleConfirm}
-            disabled={state === "loading"}
-            aria-label="确认流转至治疗队列"
-          >
+          <Button variant="default" size="sm" onClick={handleConfirm} disabled={state === "loading"} aria-label="确认流转至治疗队列">
             {state === "loading" ? (
               <span className="text-xs">流转中…</span>
             ) : (
@@ -116,9 +134,7 @@ export function StatusTransition({ patient, selectedProjects, onComplete }: Stat
           <AlertTitle className="text-xs font-medium text-success-700">流转成功</AlertTitle>
           <AlertDescription className="text-xs text-neutral-600">
             患者已加入治疗队列，排队序号：
-            <span className="font-mono font-medium text-primary-600">
-              {queueItem.queueNumber}
-            </span>
+            <span className="font-mono font-medium text-primary-600">{queueItem.queueNumber}</span>
           </AlertDescription>
         </Alert>
         <div className="flex justify-end">

@@ -1,3 +1,4 @@
+Connecting to db 5432
 export type Json =
   | string
   | number
@@ -206,6 +207,64 @@ export type Database = {
         }
         Relationships: []
       }
+      prescription_steps: {
+        Row: {
+          completed_at: string | null
+          id: string
+          prescription_id: string
+          project_id: string
+          region: string
+          sort_order: number
+          started_at: string | null
+          status: Database["public"]["Enums"]["prescription_step_status"]
+          treatment_record_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          prescription_id: string
+          project_id: string
+          region: string
+          sort_order?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["prescription_step_status"]
+          treatment_record_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          prescription_id?: string
+          project_id?: string
+          region?: string
+          sort_order?: number
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["prescription_step_status"]
+          treatment_record_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prescription_steps_prescription_id_fkey"
+            columns: ["prescription_id"]
+            isOneToOne: false
+            referencedRelation: "prescriptions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prescription_steps_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "therapy_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prescription_steps_treatment_record_id_fkey"
+            columns: ["treatment_record_id"]
+            isOneToOne: false
+            referencedRelation: "treatment_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prescriptions: {
         Row: {
           consultation_id: string
@@ -213,7 +272,6 @@ export type Database = {
           herbs: Json | null
           id: string
           meta: Json | null
-          therapy_package_id: string | null
           total_amount: number | null
         }
         Insert: {
@@ -222,7 +280,6 @@ export type Database = {
           herbs?: Json | null
           id?: string
           meta?: Json | null
-          therapy_package_id?: string | null
           total_amount?: number | null
         }
         Update: {
@@ -231,7 +288,6 @@ export type Database = {
           herbs?: Json | null
           id?: string
           meta?: Json | null
-          therapy_package_id?: string | null
           total_amount?: number | null
         }
         Relationships: [
@@ -240,13 +296,6 @@ export type Database = {
             columns: ["consultation_id"]
             isOneToOne: true
             referencedRelation: "consultations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "prescriptions_therapy_package_id_fkey"
-            columns: ["therapy_package_id"]
-            isOneToOne: false
-            referencedRelation: "therapy_packages"
             referencedColumns: ["id"]
           },
         ]
@@ -259,6 +308,7 @@ export type Database = {
           patient_id: string
           queue_number: number
           queue_type: Database["public"]["Enums"]["queue_type"]
+          region: string | null
           status: Database["public"]["Enums"]["queue_status"]
         }
         Insert: {
@@ -268,6 +318,7 @@ export type Database = {
           patient_id: string
           queue_number: number
           queue_type: Database["public"]["Enums"]["queue_type"]
+          region?: string | null
           status?: Database["public"]["Enums"]["queue_status"]
         }
         Update: {
@@ -277,6 +328,7 @@ export type Database = {
           patient_id?: string
           queue_number?: number
           queue_type?: Database["public"]["Enums"]["queue_type"]
+          region?: string | null
           status?: Database["public"]["Enums"]["queue_status"]
         }
         Relationships: [
@@ -400,66 +452,34 @@ export type Database = {
         }
         Relationships: []
       }
-      therapy_package_items: {
+      system_config: {
         Row: {
-          package_id: string
-          project_id: string
-          sort_order: number
-        }
-        Insert: {
-          package_id: string
-          project_id: string
-          sort_order?: number
-        }
-        Update: {
-          package_id?: string
-          project_id?: string
-          sort_order?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "therapy_package_items_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "therapy_packages"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "therapy_package_items_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "therapy_projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      therapy_packages: {
-        Row: {
+          description: string | null
           id: string
-          matched_symptoms: string | null
-          name: string
-          pinyin_initial: string | null
-          target_audience: string | null
+          key: string
+          updated_at: string
+          value: string
         }
         Insert: {
+          description?: string | null
           id?: string
-          matched_symptoms?: string | null
-          name: string
-          pinyin_initial?: string | null
-          target_audience?: string | null
+          key: string
+          updated_at?: string
+          value: string
         }
         Update: {
+          description?: string | null
           id?: string
-          matched_symptoms?: string | null
-          name?: string
-          pinyin_initial?: string | null
-          target_audience?: string | null
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
       therapy_projects: {
         Row: {
           bpm: number | null
+          contraindications: Json | null
           energy_level: string | null
           guidance_script: string | null
           has_guidance: boolean
@@ -475,6 +495,7 @@ export type Database = {
         }
         Insert: {
           bpm?: number | null
+          contraindications?: Json | null
           energy_level?: string | null
           guidance_script?: string | null
           has_guidance?: boolean
@@ -490,6 +511,7 @@ export type Database = {
         }
         Update: {
           bpm?: number | null
+          contraindications?: Json | null
           energy_level?: string | null
           guidance_script?: string | null
           has_guidance?: boolean
@@ -512,6 +534,7 @@ export type Database = {
           duration: number | null
           end_time: string | null
           id: string
+          region: string | null
           start_time: string | null
         }
         Insert: {
@@ -520,6 +543,7 @@ export type Database = {
           duration?: number | null
           end_time?: string | null
           id?: string
+          region?: string | null
           start_time?: string | null
         }
         Update: {
@@ -528,13 +552,14 @@ export type Database = {
           duration?: number | null
           end_time?: string | null
           id?: string
+          region?: string | null
           start_time?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "treatment_records_consultation_id_fkey"
             columns: ["consultation_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "consultations"
             referencedColumns: ["id"]
           },
@@ -596,6 +621,11 @@ export type Database = {
         | "pending-treatment"
         | "treating"
         | "completed"
+      prescription_step_status:
+        | "pending"
+        | "in-progress"
+        | "completed"
+        | "skipped"
       question_type: "single-choice" | "multi-choice" | "slider" | "text"
       queue_status: "waiting" | "in-progress" | "completed"
       queue_type: "waiting" | "treatment"
@@ -738,6 +768,12 @@ export const Constants = {
         "pending-treatment",
         "treating",
         "completed",
+      ],
+      prescription_step_status: [
+        "pending",
+        "in-progress",
+        "completed",
+        "skipped",
       ],
       question_type: ["single-choice", "multi-choice", "slider", "text"],
       queue_status: ["waiting", "in-progress", "completed"],

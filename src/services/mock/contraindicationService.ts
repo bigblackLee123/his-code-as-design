@@ -9,13 +9,16 @@ export const contraindicationService = {
     const lower = keyword.toLowerCase().trim();
 
     return mockContraindications.filter((item) => {
-      // 汉字模糊匹配（name 包含关键字）
       if (item.name.includes(lower)) return true;
-      // 拼音首字母匹配（大小写不敏感）
       if (item.pinyinInitial.toLowerCase().includes(lower)) return true;
-      // 拼音全拼匹配
       if (item.pinyin.toLowerCase().includes(lower)) return true;
       return false;
     });
   },
+
+  /** Mock: 保存就诊禁忌症关联（no-op） */
+  saveForConsultation: async (
+    _consultationId: string,
+    _contraindications: Contraindication[]
+  ): Promise<void> => {},
 };
