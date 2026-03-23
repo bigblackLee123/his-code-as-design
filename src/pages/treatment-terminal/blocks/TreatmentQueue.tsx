@@ -5,13 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MaskedText } from "@/components/his/MaskedText";
 import { queueService } from "@/services";
 import { treatmentQueueService } from "@/services/supabase/treatmentQueueService";
+import { consultationHelper } from "@/services/supabase/consultationHelper";
 import { useQueueRealtime } from "@/hooks/useQueueRealtime";
 import type { RoomCheckIn, QueueItem } from "@/services/types";
 import { Syringe, CreditCard, Search } from "lucide-react";
 
 export interface TreatmentQueueProps {
   region: string;
-  onCheckIn: (checkIn: RoomCheckIn) => void;
+  onCheckIn: (checkIn: RoomCheckIn, consultationId: string) => void;
   disabled: boolean;
 }
 
@@ -46,7 +47,8 @@ export function TreatmentQueue({ region, onCheckIn, disabled }: TreatmentQueuePr
     setErrorMsg("");
     try {
       const result = await treatmentQueueService.checkInByRoom(cardSuffix, region);
-      onCheckIn(result);
+      const cId = await consultationHelper.getActiveId(result.patient.id);
+      onCheckIn(result, cId);
       setCardSuffix("");
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : "签到失败");

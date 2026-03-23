@@ -2,9 +2,9 @@ import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { aiService } from "@/services";
+import { aiService, therapyService } from "@/services";
 import { consultationHelper } from "@/services/supabase/consultationHelper";
-import type { Patient, ConsultationData, AITherapySuggestion } from "@/services/types";
+import type { Patient, ConsultationData, AITherapySuggestion, TherapyProject } from "@/services/types";
 import { Sparkles, RotateCcw, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ const TIMEOUT_MS = 30_000;
 export interface AISuggestionPanelProps {
   patient: Patient;
   consultationData: ConsultationData;
-  onAdopt: (suggestion: AITherapySuggestion) => void;
+  onAdopt: (suggestion: AITherapySuggestion, projects: TherapyProject[]) => void;
 }
 
 export function AISuggestionPanel({ patient, onAdopt }: AISuggestionPanelProps) {
@@ -115,7 +115,13 @@ export function AISuggestionPanel({ patient, onAdopt }: AISuggestionPanelProps) 
             >
               置信度 {Math.round(suggestion.confidence * 100)}%
             </Badge>
-            <Button variant="default" size="sm" onClick={() => onAdopt(suggestion)} aria-label="采纳 AI 建议">
+            <Button variant="default" size="sm" onClick={async () => {
+              const results = await Promise.all(
+                suggestion.projectIds.map((id) => therapyService.getProjectById(id)),
+              );
+              const projects = results.filter((p): p is TherapyProject => p !== null);
+              onAdopt(suggestion, projects);
+            }} aria-label="采纳 AI 建议">
               <CheckCircle className="h-3 w-3" />
               <span>采纳建议</span>
             </Button>

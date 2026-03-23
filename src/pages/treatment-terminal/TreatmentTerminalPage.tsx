@@ -8,7 +8,6 @@ import { PostVitalSigns } from "./blocks/PostVitalSigns";
 import { PostScaleForm } from "./blocks/PostScaleForm";
 import { QueueComplete } from "./blocks/QueueComplete";
 import type { TreatmentPatient, TreatmentState, VitalSigns, ScaleResult, RoomCheckIn, PrescriptionStep } from "@/services/types";
-import { consultationHelper } from "@/services/supabase/consultationHelper";
 import { Syringe, MapPin } from "lucide-react";
 
 type PageStatus =
@@ -38,8 +37,7 @@ export function TreatmentTerminalPage() {
     setPageStatus("idle");
   }, []);
 
-  const handleCheckIn = useCallback(async (checkIn: RoomCheckIn) => {
-    const cId = await consultationHelper.getActiveId(checkIn.patient.id);
+  const handleCheckIn = useCallback((checkIn: RoomCheckIn, cId: string) => {
     setConsultationId(cId);
     setCurrentPatient({
       ...checkIn.patient,

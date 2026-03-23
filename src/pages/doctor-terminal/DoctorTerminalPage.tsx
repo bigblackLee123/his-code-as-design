@@ -17,8 +17,7 @@ import type {
   ScaleResult,
   TherapyProject,
 } from "@/services/types";
-import { therapyService, patientService, contraindicationService, scaleService } from "@/services";
-import { consultationHelper } from "@/services/supabase/consultationHelper";
+import { therapyService, patientService } from "@/services";
 
 const useMock = import.meta.env.VITE_USE_MOCK === "true";
 
@@ -35,8 +34,6 @@ const MOCK_PATIENT: Patient = {
   createdAt: "2024-01-15T09:00:00Z",
 };
 
-const MOCK_CONTRAINDICATIONS: Contraindication[] = [];
-
 export function DoctorTerminalPage() {
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
   const [consultationData, setConsultationData] = useState<ConsultationData>({
@@ -51,7 +48,6 @@ export function DoctorTerminalPage() {
   // Mock 模式：自动加载预填数据，方便演示截图
   useEffect(() => {
     if (!useMock) return;
-    // 预存生理数据，让 PatientInfoBar 能读到
     patientService.saveVitalSigns(MOCK_PATIENT.id, {
       systolicBP: 145,
       diastolicBP: 92,
@@ -61,12 +57,11 @@ export function DoctorTerminalPage() {
     });
     setCurrentPatient(MOCK_PATIENT);
     setConsultationData({
-      contraindications: MOCK_CONTRAINDICATIONS,
+      contraindications: [],
       symptoms: [],
       scaleResults: null,
       aiSuggestion: null,
     });
-    // 自动选中前两个项目
     therapyService.getProjects().then((projects) => {
       if (projects.length > 0) setSelectedProjects(projects.slice(0, 2));
     });
@@ -79,37 +74,20 @@ export function DoctorTerminalPage() {
     setShowTransition(false);
   }, []);
 
-  const handleContraindicationChange = useCallback(async (items: Contraindication[]) => {
+  const handleContraindicationChange = useCallback((items: Contraindication[]) => {
     setConsultationData((prev) => ({ ...prev, contraindications: items }));
-    // 即时持久化到 DB（AI 聚合数据依赖此表）
-    if (currentPatient) {
-      try {
-        const cId = await consultationHelper.getActiveId(currentPatient.id);
-        await contraindicationService.saveForConsultation(cId, items);
-      } catch { /* 静默失败，不阻塞 UI */ }
-    }
-  }, [currentPatient]);
+  }, []);
 
   const handleSymptomChange = useCallback((items: Symptom[]) => {
     setConsultationData((prev) => ({ ...prev, symptoms: items }));
   }, []);
 
-  const handleScaleSubmit = useCallback(async (results: ScaleResult) => {
+  const handleScaleSubmit = useCallback((results: ScaleResult) => {
     setConsultationData((prev) => ({ ...prev, scaleResults: results }));
-    // 即时持久化到 DB（AI 聚合数据依赖此表）
-    if (currentPatient) {
-      try {
-        await scaleService.saveResult(currentPatient.id, results, "pre");
-      } catch { /* 静默失败，不阻塞 UI */ }
-    }
-  }, [currentPatient]);
+  }, []);
 
-  const handleAdoptSuggestion = useCallback(async (suggestion: AITherapySuggestion) => {
-    setConsultationData((prev) => ({ ...prev, aiSuggestion: suggestion }));
-    const results = await Promise.all(
-      suggestion.projectIds.map((id) => therapyService.getProjectById(id)),
-    );
-    const projects = results.filter((p): p is TherapyProject => p !== null);
+  const handleAdoptSuggestion = useCallback((_suggestion: AITherapySuggestion, projects: TherapyProject[]) => {
+    setConsultationData((prev) => ({ ...prev, aiSuggestion: _suggestion }));
     setSelectedProjects(projects);
   }, []);
 
@@ -143,14 +121,14 @@ export function DoctorTerminalPage() {
           <>
             <PatientInfoBar patient={currentPatient} />
             <ContraindicationInput
-              value={consultationData.contraindications}
-              onChange={handleContraindicationChange}
+              patientId={currentPatient.id}
+              onItemsChange={handleContraindicationChange}
             />
             <SymptomInput
               value={consultationData.symptoms}
               onChange={handleSymptomChange}
             />
-            <ScaleForm onSubmit={handleScaleSubmit} />
+            <ScaleForm patientId={currentPatient.id} onSubmit={handleScaleSubmit} />
             <AISuggestionPanel
               patient={currentPatient}
               consultationData={consultationData}

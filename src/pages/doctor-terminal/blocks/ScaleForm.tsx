@@ -7,12 +7,13 @@ import { ScaleQuestionRenderer } from "./ScaleQuestionRenderer";
 import { useScaleForm } from "./useScaleForm";
 
 export interface ScaleFormProps {
+  patientId: string;
   onSubmit: (results: ScaleResult) => void;
 }
 
-export function ScaleForm({ onSubmit }: ScaleFormProps) {
+export function ScaleForm({ patientId, onSubmit }: ScaleFormProps) {
   const formRef = useRef<HTMLDivElement>(null);
-  const s = useScaleForm(onSubmit);
+  const s = useScaleForm(onSubmit, patientId);
 
   return (
     <div ref={formRef} className="flex flex-col gap-2">

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { scaleService } from "@/services";
 import type { ScaleTemplate, ScaleResult } from "@/services/types";
 
-export function useScaleForm(onSubmit: (r: ScaleResult) => void) {
+export function useScaleForm(onSubmit: (r: ScaleResult) => void, patientId?: string) {
   const [templates, setTemplates] = useState<ScaleTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [currentTemplate, setCurrentTemplate] = useState<ScaleTemplate | null>(null);
@@ -80,6 +80,10 @@ export function useScaleForm(onSubmit: (r: ScaleResult) => void) {
     setSubmittedScore(result.totalScore);
     setSubmittedTemplateName(currentTemplate.name);
     setSubmitted(true);
+    // 持久化到 DB
+    if (patientId) {
+      scaleService.saveResult(patientId, result, "pre").catch(() => { /* 静默失败 */ });
+    }
     onSubmit(result);
   }, [currentTemplate, answers, isAnswered, calculateTotalScore, onSubmit]);
 
