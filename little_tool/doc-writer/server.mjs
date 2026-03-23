@@ -2,6 +2,7 @@ import { createServer } from 'node:http';
 import { writeFile, readFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
 import { existsSync } from 'node:fs';
+import { exec } from 'node:child_process';
 
 const PORT = 3456;
 // 项目根目录 = little_tool/doc-writer/../../
@@ -85,4 +86,10 @@ const server = createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`📝 Doc Writer 运行中: http://localhost:${PORT}`);
   console.log(`📁 项目根目录: ${PROJECT_ROOT}`);
+  // 自动打开浏览器（macOS: open, Linux: xdg-open, Windows: start）
+  const url = `http://localhost:${PORT}`;
+  const cmd = process.platform === 'darwin' ? `open "${url}"`
+    : process.platform === 'win32' ? `start "${url}"`
+    : `xdg-open "${url}"`;
+  exec(cmd);
 });

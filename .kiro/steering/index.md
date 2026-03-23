@@ -85,5 +85,6 @@ inclusion: always
 | 视觉测试验证 | `doc/task-implementation/05-visual-testing/index.md` | 按终端逐个读取（分诊/医生/治疗） |
 | 检查 UI 是否符合规范 | `doc/task-implementation/06-ui-rules/index.md` | 按约束类型读取（样式/结构/业务） |
 | 百炼平台 AI 对接 | `doc/official_API_Doc/aliyun/` | 大模型请求体、响应对象、知识库 API 示例 |
+| 了解项目结构 / 定位文件 | `doc/project-map.md` | 需要知道"东西在哪"时读取 |
 
 
