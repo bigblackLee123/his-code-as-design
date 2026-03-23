@@ -1,18 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService, patientService } from "@/services";
-import { useQueueRealtime } from "@/hooks/useQueueRealtime";
-import type { Patient, QueueItem } from "@/services/types";
+import { useCallQueue } from "./useCallQueue";
+import type { Patient } from "@/services/types";
 import { Users, Phone } from "lucide-react";
 
 export interface CallQueueProps {
   onPatientCalled: (patient: Patient) => void;
   disabled: boolean;
 }
-
-const DEPARTMENT_ID = "DEPT001";
 
 function formatWaitingTime(enqueuedAt: string): string {
   const diff = Date.now() - new Date(enqueuedAt).getTime();
@@ -25,43 +21,11 @@ function formatWaitingTime(enqueuedAt: string): string {
 }
 
 export function CallQueue({ onPatientCalled, disabled }: CallQueueProps) {
-  const [queue, setQueue] = useState<QueueItem[]>([]);
-  const [calling, setCalling] = useState(false);
-
-  const loadQueue = useCallback(async () => {
-    try {
-      const items = await queueService.getWaitingQueue(DEPARTMENT_ID);
-      setQueue(items);
-    } catch {
-      // silently fail, queue stays empty
-    }
-  }, []);
-
-  useEffect(() => {
-    loadQueue();
-  }, [loadQueue]);
-
-  // Realtime: reload queue on any queue_items change
-  useQueueRealtime(useCallback(() => {
-    loadQueue();
-  }, [loadQueue]));
+  const { queue, calling, callNext } = useCallQueue();
 
   const handleCallNext = async () => {
-    setCalling(true);
-    try {
-      const queueItem = await queueService.callNextWaiting(DEPARTMENT_ID);
-      if (!queueItem) return;
-
-      const patient = await patientService.getById(queueItem.patientId);
-      if (patient) {
-        onPatientCalled(patient);
-      }
-      await loadQueue();
-    } catch {
-      // silently fail
-    } finally {
-      setCalling(false);
-    }
+    const patient = await callNext();
+    if (patient) onPatientCalled(patient);
   };
 
   return (

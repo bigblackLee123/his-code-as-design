@@ -1,14 +1,10 @@
-import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { aiService, therapyService } from "@/services";
-import { consultationHelper } from "@/services/supabase/consultationHelper";
+import { useAISuggestion } from "./useAISuggestion";
 import type { Patient, ConsultationData, AITherapySuggestion, TherapyProject } from "@/services/types";
 import { Sparkles, RotateCcw, CheckCircle, AlertTriangle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const TIMEOUT_MS = 30_000;
 
 export interface AISuggestionPanelProps {
   patient: Patient;
@@ -17,50 +13,7 @@ export interface AISuggestionPanelProps {
 }
 
 export function AISuggestionPanel({ patient, onAdopt }: AISuggestionPanelProps) {
-  const [suggestion, setSuggestion] = useState<AITherapySuggestion | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
-
-  const fetchSuggestion = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    setSuggestion(null);
-
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    try {
-      // consultationId 模式：Edge Function 从 DB 聚合完整数据
-      const consultationId = await consultationHelper.getActiveId(patient.id);
-
-      const result = await Promise.race([
-        aiService.getTherapySuggestion({
-          consultationId,
-          vitals: { systolicBP: 0, diastolicBP: 0, heartRate: 0, recordedAt: "", recordedBy: "" },
-          contraindications: [],
-          scaleResult: null,
-        }),
-        new Promise<never>((_, reject) => {
-          const timer = setTimeout(() => reject(new Error("请求超时")), TIMEOUT_MS);
-          controller.signal.addEventListener("abort", () => clearTimeout(timer));
-        }),
-      ]);
-
-      if (!controller.signal.aborted) {
-        setSuggestion(result);
-      }
-    } catch (err) {
-      if (!controller.signal.aborted) {
-        setError(err instanceof Error ? err.message : "获取 AI 建议失败，请重试");
-      }
-    } finally {
-      if (!controller.signal.aborted) {
-        setLoading(false);
-      }
-      abortRef.current = null;
-    }
-  }, [patient.id]);
+  const { suggestion, loading, error, fetch: fetchSuggestion, adoptProjects } = useAISuggestion(patient.id);
 
   return (
     <div className="flex flex-col gap-2">
@@ -116,10 +69,7 @@ export function AISuggestionPanel({ patient, onAdopt }: AISuggestionPanelProps) 
               置信度 {Math.round(suggestion.confidence * 100)}%
             </Badge>
             <Button variant="default" size="sm" onClick={async () => {
-              const results = await Promise.all(
-                suggestion.projectIds.map((id) => therapyService.getProjectById(id)),
-              );
-              const projects = results.filter((p): p is TherapyProject => p !== null);
+              const projects = await adoptProjects();
               onAdopt(suggestion, projects);
             }} aria-label="采纳 AI 建议">
               <CheckCircle className="h-3 w-3" />

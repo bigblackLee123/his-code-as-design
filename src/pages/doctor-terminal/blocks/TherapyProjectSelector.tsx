@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { therapyService } from "@/services";
+import { useTherapyProjects } from "./useTherapyProjects";
 import type { TherapyProject, Contraindication } from "@/services/types";
 import { Music, Search } from "lucide-react";
 import {
@@ -44,14 +44,10 @@ export function TherapyProjectSelector({
   patientContraindications,
   onSelect,
 }: TherapyProjectSelectorProps) {
-  const [allProjects, setAllProjects] = useState<TherapyProject[]>([]);
+  const { allProjects } = useTherapyProjects();
   const [keyword, setKeyword] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    therapyService.getProjects().then(setAllProjects);
-  }, []);
 
   const selectedIds = useMemo(
     () => new Set(selectedProjects.map((p) => p.id)),

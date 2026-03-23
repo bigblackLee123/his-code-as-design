@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { symptomService } from "@/services";
+import { useSymptomSearch } from "./useSymptomSearch";
 import type { Symptom } from "@/services/types";
 import { Search, X, Stethoscope } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,42 +13,16 @@ export interface SymptomInputProps {
 }
 
 export function SymptomInput({ value, onChange }: SymptomInputProps) {
-  const [keyword, setKeyword] = useState("");
-  const [results, setResults] = useState<Symptom[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { keyword, setKeyword, results, isLoading, isOpen, setIsOpen } = useSymptomSearch(value);
   const containerRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const doSearch = useCallback(async (term: string) => {
-    if (!term.trim()) {
-      setResults([]);
-      setIsOpen(false);
-      setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const items = await symptomService.search(term);
-      const selected = new Set(value.map((v) => v.name));
-      setResults(items.filter((item) => !selected.has(item.name)));
-      setIsOpen(true);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [value]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setKeyword(val);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => doSearch(val), 200);
+    setKeyword(e.target.value);
   };
 
   const handleSelect = (item: Symptom) => {
     onChange([...value, item]);
     setKeyword("");
-    setResults([]);
     setIsOpen(false);
   };
 
@@ -64,11 +38,7 @@ export function SymptomInput({ value, onChange }: SymptomInputProps) {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, []);
+  }, [setIsOpen]);
 
   return (
     <div className="flex flex-col gap-2">

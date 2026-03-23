@@ -1,8 +1,7 @@
-import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { MaskedText } from "@/components/his/MaskedText";
-import { treatmentQueueService } from "@/services/supabase/treatmentQueueService";
+import { useQueueComplete } from "./useQueueComplete";
 import type { TreatmentPatient, TreatmentState, VitalSigns, ScaleResult } from "@/services/types";
 import { CheckCircle, AlertTriangle, RotateCcw, Timer } from "lucide-react";
 
@@ -13,8 +12,6 @@ export interface QueueCompleteProps {
   postScaleResult?: ScaleResult | null;
   onComplete: () => void;
 }
-
-type CompleteState = "confirm" | "loading" | "success" | "error";
 
 /** Format duration in seconds to a human-readable string (e.g. "12分30秒") */
 function formatDuration(startTime: Date | null, endTime: Date | null): string {
@@ -27,24 +24,11 @@ function formatDuration(startTime: Date | null, endTime: Date | null): string {
 }
 
 export function QueueComplete({ patient, treatmentState, postVitals, postScaleResult, onComplete }: QueueCompleteProps) {
-  const [state, setState] = useState<CompleteState>("confirm");
-  const [errorMsg, setErrorMsg] = useState("");
+  const { state, errorMsg, confirm } = useQueueComplete(patient.id);
 
-  const handleConfirm = useCallback(async () => {
-    setState("loading");
-    setErrorMsg("");
-    try {
-      await treatmentQueueService.completeTreatment(
-        patient.id,
-        postVitals ?? undefined,
-        postScaleResult ?? undefined
-      );
-      setState("success");
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "出队失败，请重试");
-      setState("error");
-    }
-  }, [patient.id]);
+  const handleConfirm = async () => {
+    await confirm(postVitals ?? undefined, postScaleResult ?? undefined);
+  };
 
   const preVitals = patient.vitalSigns;
 

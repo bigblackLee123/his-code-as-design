@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { CallQueue } from "./blocks/CallQueue";
 import { PatientInfoBar } from "./blocks/PatientInfoBar";
 import { ContraindicationInput } from "./blocks/ContraindicationInput";
@@ -8,6 +8,7 @@ import { AISuggestionPanel } from "./blocks/AISuggestionPanel";
 import { TherapyProjectSelector } from "./blocks/TherapyProjectSelector";
 import { TherapyProjectList } from "./blocks/TherapyProjectList";
 import { StatusTransition } from "./blocks/StatusTransition";
+import { useMockInit } from "./blocks/useMockInit";
 import type {
   Patient,
   ConsultationData,
@@ -17,22 +18,6 @@ import type {
   ScaleResult,
   TherapyProject,
 } from "@/services/types";
-import { therapyService, patientService } from "@/services";
-
-const useMock = import.meta.env.VITE_USE_MOCK === "true";
-
-/** Mock 模式下的预填患者数据 */
-const MOCK_PATIENT: Patient = {
-  id: "P003",
-  name: "王建国",
-  gender: "male",
-  age: 72,
-  idNumber: "440103195207203456",
-  phone: "15012349876",
-  insuranceCardNo: "YB20240003",
-  status: "consulting",
-  createdAt: "2024-01-15T09:00:00Z",
-};
 
 export function DoctorTerminalPage() {
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
@@ -45,27 +30,16 @@ export function DoctorTerminalPage() {
   const [selectedProjects, setSelectedProjects] = useState<TherapyProject[]>([]);
   const [showTransition, setShowTransition] = useState(false);
 
-  // Mock 模式：自动加载预填数据，方便演示截图
-  useEffect(() => {
-    if (!useMock) return;
-    patientService.saveVitalSigns(MOCK_PATIENT.id, {
-      systolicBP: 145,
-      diastolicBP: 92,
-      heartRate: 82,
-      recordedAt: new Date().toISOString(),
-      recordedBy: "分诊护士",
-    });
-    setCurrentPatient(MOCK_PATIENT);
-    setConsultationData({
-      contraindications: [],
-      symptoms: [],
-      scaleResults: null,
-      aiSuggestion: null,
-    });
-    therapyService.getProjects().then((projects) => {
-      if (projects.length > 0) setSelectedProjects(projects.slice(0, 2));
-    });
-  }, []);
+  // Mock 模式：自动加载预填数据
+  useMockInit(
+    useCallback((p: Patient) => {
+      setCurrentPatient(p);
+      setConsultationData({ contraindications: [], symptoms: [], scaleResults: null, aiSuggestion: null });
+    }, []),
+    useCallback((projects: TherapyProject[]) => {
+      setSelectedProjects(projects);
+    }, []),
+  );
 
   const handlePatientCalled = useCallback((patient: Patient) => {
     setCurrentPatient(patient);

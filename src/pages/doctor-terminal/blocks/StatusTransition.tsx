@@ -1,10 +1,9 @@
-import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService, prescriptionService } from "@/services";
-import type { Patient, QueueItem, TherapyProject, ConsultationData, PrescriptionData } from "@/services/types";
+import { useStatusTransition } from "./useStatusTransition";
+import type { Patient, TherapyProject, ConsultationData } from "@/services/types";
 import { ArrowRight, CheckCircle, AlertTriangle, RotateCcw, ListMusic } from "lucide-react";
 
 export interface StatusTransitionProps {
@@ -14,42 +13,8 @@ export interface StatusTransitionProps {
   onComplete: () => void;
 }
 
-type TransitionState = "confirm" | "loading" | "success" | "error";
-
-/** 构建疗愈处方数据（meta/herbs 为兼容保留，核心在 prescription_steps） */
-function buildPrescriptionData(_projects: TherapyProject[]): PrescriptionData {
-  return {
-    meta: { route: "", usage: "", frequency: "", dosage: "", orderType: "疗愈处方", department: "音乐疗愈科", doses: 1 },
-    herbs: [],
-    totalAmount: 0,
-  };
-}
-
-export function StatusTransition({ patient, selectedProjects, consultationData, onComplete }: StatusTransitionProps) {
-  const [state, setState] = useState<TransitionState>("confirm");
-  const [queueItem, setQueueItem] = useState<QueueItem | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string>("");
-
-  const handleConfirm = useCallback(async () => {
-    setState("loading");
-    setErrorMsg("");
-
-    try {
-      // 量表 & 禁忌症已由 DoctorTerminalPage 即时持久化，此处不再重复保存
-
-      // 1. 保存处方 + 拆解 steps
-      const prescriptionData = buildPrescriptionData(selectedProjects);
-      await prescriptionService.saveWithSteps(patient.id, prescriptionData, selectedProjects);
-
-      // 2. 入治疗队列
-      const item = await queueService.enqueueTreatment(patient.id);
-      setQueueItem(item);
-      setState("success");
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "流转失败，请重试");
-      setState("error");
-    }
-  }, [patient.id, consultationData, selectedProjects]);
+export function StatusTransition({ patient, selectedProjects, onComplete }: StatusTransitionProps) {
+  const { state, queueItem, errorMsg, confirm: handleConfirm } = useStatusTransition(patient.id, selectedProjects);
 
   if (state === "confirm" || state === "loading") {
     return (

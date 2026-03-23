@@ -1,10 +1,9 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { MaskedText } from "@/components/his/MaskedText";
 import { ManualPatientForm } from "./ManualPatientForm";
-import { patientService } from "@/services";
+import { usePatientCheckIn } from "./usePatientCheckIn";
 import type { Patient } from "@/services/types";
 import { CreditCard, AlertTriangle, CheckCircle, UserPlus } from "lucide-react";
 
@@ -12,61 +11,15 @@ export interface PatientCheckInProps {
   onCheckInComplete: (patient: Patient) => void;
 }
 
-type Mode = "idle" | "reading" | "success" | "manual";
-
 export function PatientCheckIn({ onCheckInComplete }: PatientCheckInProps) {
-  const [mode, setMode] = useState<Mode>("idle");
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const simulateCardRead = async () => {
-    setMode("reading");
-    setError(null);
-
-    // Simulate card reader delay
-    await new Promise((r) => setTimeout(r, 1200));
-
-    // 70% success rate simulation
-    if (Math.random() < 0.3) {
-      setError("刷卡失败：读卡器未响应，请重试或手动输入患者信息");
-      setMode("manual");
-      return;
-    }
-
-    // Simulate reading a known insurance card
-    const mockCardNo = "YB2024001";
-    let found = await patientService.getByInsuranceCard(mockCardNo);
-
-    if (!found) {
-      // Auto-create new patient from card data
-      found = await patientService.create({
-        name: "张三",
-        gender: "male",
-        age: 45,
-        idNumber: "310101197801010011",
-        phone: "13800138000",
-        insuranceCardNo: mockCardNo,
-      });
-    } else {
-      // 老患者复诊：关闭旧 consultation，重置状态，创建新 consultation
-      if ("checkIn" in patientService) {
-        await (patientService as { checkIn: (id: string) => Promise<void> }).checkIn(found.id);
-      }
-      found = { ...found, status: "checked-in" };
-    }
-
-    setPatient(found);
-    setMode("success");
-  };
+  const { mode, patient, error, simulateCardRead, setMode, setPatientFromManual } = usePatientCheckIn();
 
   const handleConfirm = () => {
     if (patient) onCheckInComplete(patient);
   };
 
   const handleManualSubmit = (p: Patient) => {
-    setPatient(p);
-    setError(null);
-    setMode("success");
+    setPatientFromManual(p);
   };
 
   return (
@@ -118,7 +71,7 @@ export function PatientCheckIn({ onCheckInComplete }: PatientCheckInProps) {
         {mode === "manual" && (
           <ManualPatientForm
             onSubmit={handleManualSubmit}
-            onCancel={() => { setMode("idle"); setError(null); }}
+            onCancel={() => { setMode("idle"); }}
           />
         )}
 

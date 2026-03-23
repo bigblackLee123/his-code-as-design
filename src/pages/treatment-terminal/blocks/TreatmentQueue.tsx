@@ -1,13 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService } from "@/services";
-import { treatmentQueueService } from "@/services/supabase/treatmentQueueService";
-import { consultationHelper } from "@/services/supabase/consultationHelper";
-import { useQueueRealtime } from "@/hooks/useQueueRealtime";
-import type { RoomCheckIn, QueueItem } from "@/services/types";
+import { useTreatmentQueue } from "./useTreatmentQueue";
+import type { RoomCheckIn } from "@/services/types";
 import { Syringe, CreditCard, Search } from "lucide-react";
 
 export interface TreatmentQueueProps {
@@ -26,34 +23,14 @@ function formatWaitingTime(enqueuedAt: string): string {
 }
 
 export function TreatmentQueue({ region, onCheckIn, disabled }: TreatmentQueueProps) {
-  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const { queue, checking, errorMsg, checkIn } = useTreatmentQueue(region);
   const [cardSuffix, setCardSuffix] = useState("");
-  const [checking, setChecking] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const loadQueue = useCallback(async () => {
-    try {
-      const items = await queueService.getTreatmentQueue();
-      setQueue(items);
-    } catch { /* silently fail */ }
-  }, []);
-
-  useEffect(() => { loadQueue(); }, [loadQueue]);
-  useQueueRealtime(useCallback(() => { loadQueue(); }, [loadQueue]));
 
   const handleCheckIn = async () => {
-    if (cardSuffix.length !== 4) return;
-    setChecking(true);
-    setErrorMsg("");
-    try {
-      const result = await treatmentQueueService.checkInByRoom(cardSuffix, region);
-      const cId = await consultationHelper.getActiveId(result.patient.id);
-      onCheckIn(result, cId);
+    const result = await checkIn(cardSuffix);
+    if (result) {
+      onCheckIn(result.checkIn, result.consultationId);
       setCardSuffix("");
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "签到失败");
-    } finally {
-      setChecking(false);
     }
   };
 

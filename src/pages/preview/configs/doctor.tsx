@@ -5,8 +5,7 @@ import { ContraindicationInput } from "@/pages/doctor-terminal/blocks/Contraindi
 import { ScaleForm } from "@/pages/doctor-terminal/blocks/ScaleForm";
 import { AISuggestionPanel } from "@/pages/doctor-terminal/blocks/AISuggestionPanel";
 import { StatusTransition } from "@/pages/doctor-terminal/blocks/StatusTransition";
-import { useState } from "react";
-import type { Patient, Contraindication, ConsultationData } from "@/services/types";
+import type { Patient, ConsultationData } from "@/services/types";
 
 const mockPatient: Patient = {
   id: "P003",
@@ -31,8 +30,7 @@ const mockConsultation: ConsultationData = {
 
 /** 禁忌症输入需要有状态的包装 */
 function ContraindicationDemo() {
-  const [items, setItems] = useState<Contraindication[]>(mockConsultation.contraindications);
-  return <ContraindicationInput value={items} onChange={setItems} />;
+  return <ContraindicationInput patientId={mockPatient.id} />;
 }
 
 registerPreview({
@@ -60,7 +58,7 @@ registerPreview({
     {
       name: "ScaleForm",
       description: "量表评估表单",
-      render: () => <ScaleForm onSubmit={() => alert("量表提交")} />,
+      render: () => <ScaleForm patientId={mockPatient.id} onSubmit={() => alert("量表提交")} />,
     },
     {
       name: "AISuggestionPanel",

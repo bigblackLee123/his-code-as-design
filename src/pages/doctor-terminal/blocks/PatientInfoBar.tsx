@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { MaskedText } from "@/components/his/MaskedText";
-import { patientService } from "@/services";
+import { usePatientVitals } from "./usePatientVitals";
 import { hasVitalSignsAlert, validateVitalSigns } from "@/lib/vitalSignsValidation";
 import { VITAL_SIGNS_RULES } from "@/services/types";
-import type { Patient, VitalSigns } from "@/services/types";
+import type { Patient } from "@/services/types";
 import { Users, HeartPulse, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,15 +45,7 @@ function VitalSignItem({
 }
 
 export function PatientInfoBar({ patient }: PatientInfoBarProps) {
-  const [vitalSigns, setVitalSigns] = useState<VitalSigns | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    patientService.getVitalSigns(patient.id).then((vs) => {
-      if (!cancelled) setVitalSigns(vs);
-    });
-    return () => { cancelled = true; };
-  }, [patient.id]);
+  const { vitalSigns } = usePatientVitals(patient.id);
 
   const alerts = vitalSigns
     ? validateVitalSigns(vitalSigns).alerts

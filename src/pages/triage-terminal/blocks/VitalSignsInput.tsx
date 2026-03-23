@@ -1,11 +1,9 @@
-import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { validateVitalSigns } from "@/lib/vitalSignsValidation";
-import { patientService } from "@/services";
+import { useVitalSignsInput } from "./useVitalSignsInput";
 import { VITAL_SIGNS_RULES, VITAL_SIGNS_ALERT_THRESHOLDS } from "@/services/types";
 import type { Patient, VitalSigns } from "@/services/types";
 import { HeartPulse, AlertTriangle, Save } from "lucide-react";
@@ -24,44 +22,7 @@ const FIELDS: { key: VitalField; label: string; unit: string }[] = [
 ];
 
 export function VitalSignsInput({ patient, onSave }: VitalSignsInputProps) {
-  const [values, setValues] = useState<Record<VitalField, string>>({
-    systolicBP: "",
-    diastolicBP: "",
-    heartRate: "",
-  });
-  const [saving, setSaving] = useState(false);
-
-  const parsedVitals: Partial<VitalSigns> = {
-    systolicBP: values.systolicBP ? Number(values.systolicBP) : undefined,
-    diastolicBP: values.diastolicBP ? Number(values.diastolicBP) : undefined,
-    heartRate: values.heartRate ? Number(values.heartRate) : undefined,
-  };
-
-  const validation = validateVitalSigns(parsedVitals);
-
-  const allFilled = values.systolicBP !== "" && values.diastolicBP !== "" && values.heartRate !== "";
-  const canSave = allFilled && validation.valid;
-
-  const handleChange = useCallback((field: VitalField, raw: string) => {
-    // Allow only digits
-    const cleaned = raw.replace(/[^\d]/g, "");
-    setValues((prev) => ({ ...prev, [field]: cleaned }));
-  }, []);
-
-  const handleSave = async () => {
-    if (!canSave) return;
-    setSaving(true);
-    const vitals: VitalSigns = {
-      systolicBP: Number(values.systolicBP),
-      diastolicBP: Number(values.diastolicBP),
-      heartRate: Number(values.heartRate),
-      recordedAt: new Date().toISOString(),
-      recordedBy: "分诊护士",
-    };
-    await patientService.saveVitalSigns(patient.id, vitals);
-    setSaving(false);
-    onSave(vitals);
-  };
+  const { values, validation, saving, canSave, handleChange, handleSave } = useVitalSignsInput(patient.id, onSave);
 
   return (
     <Card className="rounded-lg shadow-sm">

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Patient } from "@/services/types";
-import { patientService } from "@/services";
+import { useManualPatientForm, type FormData } from "./useManualPatientForm";
 import { UserPlus } from "lucide-react";
 
 export interface ManualPatientFormProps {
@@ -18,65 +17,8 @@ export interface ManualPatientFormProps {
   onCancel: () => void;
 }
 
-interface FormData {
-  name: string;
-  insuranceCardNo: string;
-  idNumber: string;
-  phone: string;
-  gender: "male" | "female" | "";
-  age: string;
-}
-
-const initialForm: FormData = {
-  name: "",
-  insuranceCardNo: "",
-  idNumber: "",
-  phone: "",
-  gender: "",
-  age: "",
-};
-
 export function ManualPatientForm({ onSubmit, onCancel }: ManualPatientFormProps) {
-  const [form, setForm] = useState<FormData>(initialForm);
-  const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
-
-  const updateField = (field: keyof FormData, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
-  };
-
-  const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof FormData, string>> = {};
-    if (!form.name.trim()) newErrors.name = "请输入患者姓名";
-    if (!form.insuranceCardNo.trim()) newErrors.insuranceCardNo = "请输入医保卡号";
-    if (!form.idNumber.trim()) newErrors.idNumber = "请输入身份证号";
-    if (!form.phone.trim()) newErrors.phone = "请输入手机号";
-    if (!form.gender) newErrors.gender = "请选择性别";
-    if (!form.age.trim() || isNaN(Number(form.age)) || Number(form.age) <= 0) {
-      newErrors.age = "请输入有效年龄";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validate()) return;
-    setSubmitting(true);
-    try {
-      const patient = await patientService.create({
-        name: form.name.trim(),
-        insuranceCardNo: form.insuranceCardNo.trim(),
-        idNumber: form.idNumber.trim(),
-        phone: form.phone.trim(),
-        gender: form.gender as "male" | "female",
-        age: Number(form.age),
-      });
-      onSubmit(patient);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const { form, errors, submitting, updateField, handleSubmit } = useManualPatientForm(onSubmit);
 
   const fields: { key: keyof FormData; label: string; placeholder: string; type?: string }[] = [
     { key: "name", label: "姓名", placeholder: "请输入患者姓名" },
