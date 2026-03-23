@@ -22,6 +22,14 @@ export const patientService = {
     return patient ?? null;
   },
 
+  /** 患者签到（复诊：重置状态） */
+  checkIn: async (patientId: string): Promise<void> => {
+    const patient = patients.find((p) => p.id === patientId);
+    if (patient) {
+      patient.status = "checked-in";
+    }
+  },
+
   /** 创建新患者档案 */
   create: async (
     data: Omit<Patient, "id" | "status" | "createdAt">
@@ -39,7 +47,8 @@ export const patientService = {
   /** 保存生理数据 */
   saveVitalSigns: async (
     patientId: string,
-    vitals: VitalSigns
+    vitals: VitalSigns,
+    _stage?: "pre-treatment" | "post-treatment"
   ): Promise<void> => {
     vitalSignsStore.set(patientId, vitals);
   },

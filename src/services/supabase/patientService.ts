@@ -29,6 +29,44 @@ export const patientService = {
     return data ? toPatient(data) : null;
   },
 
+  /** 患者签到（支持复诊：关闭旧数据，重置状态，创建新 consultation） */
+  async checkIn(patientId: string): Promise<void> {
+    // 1. 关闭所有未完成的旧 consultation
+    const { data: openConsultations, error: selectError } = await supabase
+      .from("consultations")
+      .select("id")
+      .eq("patient_id", patientId)
+      .eq("status", "in-progress");
+
+    throwIfError(selectError, { table: "consultations", operation: "select" });
+
+    if (openConsultations?.length) {
+      for (const c of openConsultations) {
+        await consultationHelper.complete(c.id);
+      }
+    }
+
+    // 2. 关闭所有未完成的旧 queue_items（waiting / in-progress）
+    const { error: queueError } = await supabase
+      .from("queue_items")
+      .update({ status: "completed" })
+      .eq("patient_id", patientId)
+      .in("status", ["waiting", "in-progress"]);
+
+    throwIfError(queueError, { table: "queue_items", operation: "update" });
+
+    // 3. 重置患者状态为 checked-in
+    const { error: updateError } = await supabase
+      .from("patients")
+      .update({ status: "checked-in" })
+      .eq("id", patientId);
+
+    throwIfError(updateError, { table: "patients", operation: "update" });
+
+    // 4. 创建新 consultation
+    await consultationHelper.create(patientId);
+  },
+
   /** 创建新患者档案 + 自动创建 Consultation */
   async create(
     data: Omit<Patient, "id" | "status" | "createdAt">

@@ -47,6 +47,12 @@ export function PatientCheckIn({ onCheckInComplete }: PatientCheckInProps) {
         phone: "13800138000",
         insuranceCardNo: mockCardNo,
       });
+    } else {
+      // 老患者复诊：关闭旧 consultation，重置状态，创建新 consultation
+      if ("checkIn" in patientService) {
+        await (patientService as { checkIn: (id: string) => Promise<void> }).checkIn(found.id);
+      }
+      found = { ...found, status: "checked-in" };
     }
 
     setPatient(found);
