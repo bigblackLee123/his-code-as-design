@@ -62,7 +62,11 @@ export function TherapyProjectSelector({
   const handleAdd = useCallback(
     (project: TherapyProject) => {
       if (selectedIds.has(project.id)) return;
-      onSelect([...selectedProjects, project]);
+      // 同区域只能选 1 个：替换已有的同区域项目
+      const withoutSameRegion = selectedProjects.filter(
+        (p) => p.region !== project.region,
+      );
+      onSelect([...withoutSameRegion, project]);
     },
     [selectedProjects, selectedIds, onSelect],
   );

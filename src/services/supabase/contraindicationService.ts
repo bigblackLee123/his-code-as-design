@@ -4,6 +4,17 @@ import { throwIfError } from "./errorHelper";
 import { toContraindication } from "./mappers";
 
 export const contraindicationService = {
+  /** 获取常见禁忌症列表（清单模式用） */
+  async getCommonList(): Promise<Contraindication[]> {
+    const { data, error } = await supabase
+      .from("contraindications")
+      .select("*")
+      .order("category", { ascending: true });
+
+    throwIfError(error, { table: "contraindications", operation: "select" });
+    return (data ?? []).map(toContraindication);
+  },
+
   /** 搜索禁忌症（支持 name / pinyin / pinyin_initial 模糊匹配，大小写不敏感） */
   async search(keyword: string): Promise<Contraindication[]> {
     if (!keyword.trim()) return [];

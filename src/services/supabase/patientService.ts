@@ -1,4 +1,4 @@
-import type { Patient, VitalSigns } from "../types";
+import type { Patient, VitalSigns, PatientHistoryRecord } from "../types";
 import { supabase } from "./client";
 import { throwIfError } from "./errorHelper";
 import { consultationHelper } from "./consultationHelper";
@@ -101,6 +101,72 @@ export const patientService = {
       .insert(payload);
 
     throwIfError(error, { table: "vital_signs", operation: "insert" });
+  },
+
+  /** 搜索患者（按姓名或医保卡号模糊匹配） */
+  async searchPatients(keyword: string): Promise<Patient[]> {
+    const trimmed = keyword.trim();
+    if (!trimmed) return [];
+
+    const { data, error } = await supabase
+      .from("patients")
+      .select("*")
+      .or(`name.ilike.%${trimmed}%,insurance_card_no.ilike.%${trimmed}%`)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    throwIfError(error, { table: "patients", operation: "select" });
+    return (data ?? []).map(toPatient);
+  },
+
+  /** 获取患者历史就诊记录 */
+  async getPatientHistory(patientId: string): Promise<PatientHistoryRecord[]> {
+    // 查询已完成的 consultations
+    const { data: consultations, error: cError } = await supabase
+      .from("consultations")
+      .select("id, created_at")
+      .eq("patient_id", patientId)
+      .eq("status", "completed")
+      .order("created_at", { ascending: false })
+      .limit(5);
+
+    throwIfError(cError, { table: "consultations", operation: "select" });
+    if (!consultations?.length) return [];
+
+    const records: PatientHistoryRecord[] = [];
+
+    for (const c of consultations) {
+      // 禁忌症
+      const { data: contras } = await supabase
+        .from("consultation_contraindications")
+        .select("contraindications!inner(name)")
+        .eq("consultation_id", c.id);
+
+      // 量表评分
+      const { data: scales } = await supabase
+        .from("scale_results")
+        .select("total_score")
+        .eq("consultation_id", c.id)
+        .eq("stage", "pre")
+        .limit(1)
+        .maybeSingle();
+
+      // 治疗项目
+      const { data: steps } = await supabase
+        .from("prescription_steps")
+        .select("therapy_projects!inner(name), prescriptions!inner(consultation_id)")
+        .eq("prescriptions.consultation_id", c.id);
+
+      records.push({
+        consultationId: c.id,
+        date: c.created_at,
+        contraindications: (contras ?? []).map((r: any) => r.contraindications.name),
+        scaleScore: scales?.total_score ?? null,
+        projects: (steps ?? []).map((s: any) => s.therapy_projects.name),
+      });
+    }
+
+    return records;
   },
 
   /** 获取患者最近一次生理数据 */

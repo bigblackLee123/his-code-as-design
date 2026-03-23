@@ -224,6 +224,39 @@ export const treatmentQueueService = {
     await consultationHelper.complete(consultationId);
   },
 
+  /** 按区域获取治疗队列（中终端用） */
+  async getTreatmentQueueByRegion(region: string): Promise<QueueItem[]> {
+    // 查找该区域有 pending/in-progress 步骤的患者的治疗队列项
+    const { data, error } = await supabase
+      .from("queue_items")
+      .select("*, patients!inner(name, insurance_card_no)")
+      .eq("queue_type", "treatment")
+      .eq("status", "waiting")
+      .order("queue_number", { ascending: true });
+
+    throwIfError(error, { table: "queue_items", operation: "select" });
+
+    if (!data?.length) return [];
+
+    // 过滤出在该区域有步骤的患者
+    const items = (data ?? []).map(toQueueItem);
+    const patientIds = items.map((i) => i.patientId);
+
+    const { data: steps, error: stepError } = await supabase
+      .from("prescription_steps")
+      .select("prescriptions!inner(consultations!inner(patient_id))")
+      .eq("region", region)
+      .in("status", ["pending", "in-progress"]);
+
+    throwIfError(stepError, { table: "prescription_steps", operation: "select" });
+
+    const regionPatientIds = new Set(
+      (steps ?? []).map((s: any) => s.prescriptions.consultations.patient_id)
+    );
+
+    return items.filter((i) => regionPatientIds.has(i.patientId));
+  },
+
   /** 保留旧的叫号方法（兼容，后续废弃） */
   async callNextTreatment(): Promise<QueueItem | null> {
     const { data: next, error: selectError } = await supabase

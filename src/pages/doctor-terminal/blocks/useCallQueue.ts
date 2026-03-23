@@ -42,5 +42,23 @@ export function useCallQueue() {
     }
   }, [loadQueue]);
 
-  return { queue, calling, callNext };
+  const skipPatient = useCallback(async (queueItemId: string) => {
+    try {
+      await queueService.skipPatient(queueItemId);
+      await loadQueue();
+    } catch {
+      // silently fail
+    }
+  }, [loadQueue]);
+
+  const removePatient = useCallback(async (queueItemId: string) => {
+    try {
+      await queueService.removeFromQueue(queueItemId);
+      await loadQueue();
+    } catch {
+      // silently fail
+    }
+  }, [loadQueue]);
+
+  return { queue, calling, callNext, skipPatient, removePatient };
 }

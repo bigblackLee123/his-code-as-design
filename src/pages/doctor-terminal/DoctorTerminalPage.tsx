@@ -9,6 +9,7 @@ import { TherapyProjectSelector } from "./blocks/TherapyProjectSelector";
 import { TherapyProjectList } from "./blocks/TherapyProjectList";
 import { StatusTransition } from "./blocks/StatusTransition";
 import { useMockInit } from "./blocks/useMockInit";
+import { PatientHistory } from "./blocks/PatientHistory";
 import type {
   Patient,
   ConsultationData,
@@ -85,15 +86,16 @@ export function DoctorTerminalPage() {
   return (
     <div className="flex h-full bg-neutral-50 gap-2 p-2">
       {/* Left: Call queue panel */}
-      <div className="w-56 shrink-0">
+      <div className="w-80 shrink-0">
         <CallQueue onPatientCalled={handlePatientCalled} disabled={!!currentPatient} />
       </div>
 
       {/* Right: Consultation work area */}
-      <div className="flex-1 flex flex-col gap-2 overflow-auto">
+      <div className="flex-1 flex flex-col gap-2">
         {currentPatient ? (
           <>
             <PatientInfoBar patient={currentPatient} />
+            <PatientHistory patientId={currentPatient.id} />
             <ContraindicationInput
               patientId={currentPatient.id}
               onItemsChange={handleContraindicationChange}

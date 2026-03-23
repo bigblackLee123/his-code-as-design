@@ -6,6 +6,7 @@ import {
   ChevronRight,
   HeartPulse,
   Syringe,
+  Monitor,
   Eye,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ const navItems: NavItem[] = [
   { icon: <HeartPulse className="h-4 w-4" />, label: "分诊终端", href: "/triage" },
   { icon: <Stethoscope className="h-4 w-4" />, label: "医生终端", href: "/doctor" },
   { icon: <Syringe className="h-4 w-4" />, label: "治疗终端", href: "/treatment" },
+  { icon: <Monitor className="h-4 w-4" />, label: "中枢终端", href: "/middle" },
   { icon: <Eye className="h-4 w-4" />, label: "组件预览", href: "/preview" },
 ];
 

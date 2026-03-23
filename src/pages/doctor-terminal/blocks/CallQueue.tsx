@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MaskedText } from "@/components/his/MaskedText";
 import { useCallQueue } from "./useCallQueue";
 import type { Patient } from "@/services/types";
-import { Users, Phone } from "lucide-react";
+import { Users, Phone, SkipForward, UserX } from "lucide-react";
 
 export interface CallQueueProps {
   onPatientCalled: (patient: Patient) => void;
@@ -21,7 +21,7 @@ function formatWaitingTime(enqueuedAt: string): string {
 }
 
 export function CallQueue({ onPatientCalled, disabled }: CallQueueProps) {
-  const { queue, calling, callNext } = useCallQueue();
+  const { queue, calling, callNext, skipPatient, removePatient } = useCallQueue();
 
   const handleCallNext = async () => {
     const patient = await callNext();
@@ -72,6 +72,28 @@ export function CallQueue({ onPatientCalled, disabled }: CallQueueProps) {
                 <span className="text-neutral-400 shrink-0">
                   {formatWaitingTime(item.enqueuedAt)}
                 </span>
+                <button
+                  type="button"
+                  onClick={() => skipPatient(item.id)}
+                  disabled={disabled || calling}
+                  className="shrink-0 rounded px-1.5 py-0.5 text-xs text-warning-600 bg-warning-50 hover:bg-warning-100 transition-colors flex items-center gap-0.5"
+                  aria-label={`过号：${item.patientName}`}
+                  title="过号"
+                >
+                  <SkipForward className="h-3 w-3" />
+                  过号
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removePatient(item.id)}
+                  disabled={disabled || calling}
+                  className="shrink-0 rounded px-1.5 py-0.5 text-xs text-error-600 bg-error-50 hover:bg-error-100 transition-colors flex items-center gap-0.5"
+                  aria-label={`移出：${item.patientName}`}
+                  title="移出队列"
+                >
+                  <UserX className="h-3 w-3" />
+                  移出
+                </button>
               </div>
             ))}
           </div>

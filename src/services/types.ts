@@ -228,6 +228,15 @@ export interface RoomCompleteResult {
   pendingSteps: PrescriptionStep[];
 }
 
+/** 患者历史就诊记录 */
+export interface PatientHistoryRecord {
+  consultationId: string;
+  date: string;
+  contraindications: string[];
+  scaleScore: number | null;
+  projects: string[];
+}
+
 /** AI 疗愈建议（推荐多个项目） */
 export interface AITherapySuggestion {
   id: string;

@@ -2,6 +2,11 @@ import type { Contraindication } from "../types";
 import { mockContraindications } from "./data/contraindications";
 
 export const contraindicationService = {
+  /** 获取常见禁忌症列表（清单模式用） */
+  getCommonList: async (): Promise<Contraindication[]> => {
+    return [...mockContraindications];
+  },
+
   /** 搜索禁忌症（支持拼音首字母和汉字模糊匹配） */
   search: async (keyword: string): Promise<Contraindication[]> => {
     if (!keyword.trim()) return [];

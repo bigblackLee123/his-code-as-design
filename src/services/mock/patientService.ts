@@ -1,4 +1,4 @@
-import type { Patient, VitalSigns } from "../types";
+import type { Patient, VitalSigns, PatientHistoryRecord } from "../types";
 import { mockPatients } from "./data/patients";
 
 // In-memory patient store (cloned from mock data)
@@ -56,5 +56,39 @@ export const patientService = {
   /** 获取患者生理数据（内部辅助方法） */
   getVitalSigns: async (patientId: string): Promise<VitalSigns | null> => {
     return vitalSignsStore.get(patientId) ?? null;
+  },
+
+  /** 搜索患者（按姓名或医保卡号模糊匹配） */
+  searchPatients: async (keyword: string): Promise<Patient[]> => {
+    const trimmed = keyword.trim().toLowerCase();
+    if (!trimmed) return [];
+    return patients.filter(
+      (p) =>
+        p.name.toLowerCase().includes(trimmed) ||
+        p.insuranceCardNo.toLowerCase().includes(trimmed)
+    );
+  },
+
+  /** 获取患者历史就诊记录（mock 返回模拟数据） */
+  getPatientHistory: async (patientId: string): Promise<PatientHistoryRecord[]> => {
+    const patient = patients.find((p) => p.id === patientId);
+    if (!patient) return [];
+    // 返回模拟历史记录
+    return [
+      {
+        consultationId: "mock-c1",
+        date: "2024-01-10T09:00:00Z",
+        contraindications: ["高血压", "心脏病"],
+        scaleScore: 72,
+        projects: ["五音疗法-宫调", "太极导引"],
+      },
+      {
+        consultationId: "mock-c2",
+        date: "2024-01-03T10:30:00Z",
+        contraindications: ["高血压"],
+        scaleScore: 68,
+        projects: ["音乐冥想-深度放松"],
+      },
+    ];
   },
 };

@@ -3,6 +3,7 @@ import { RegionSelector } from "./blocks/RegionSelector";
 import { TreatmentQueue } from "./blocks/TreatmentQueue";
 import { TreatmentPatientView } from "./blocks/TreatmentPatientView";
 import { TreatmentAction } from "./blocks/TreatmentAction";
+import { TreatmentWarnings } from "./blocks/TreatmentWarnings";
 import { RoomCompleteCheck } from "./blocks/RoomCompleteCheck";
 import { PostVitalSigns } from "./blocks/PostVitalSigns";
 import { PostScaleForm } from "./blocks/PostScaleForm";
@@ -141,6 +142,7 @@ export function TreatmentTerminalPage() {
                 onEnd={handleEnd}
               />
             )}
+            {pageStatus === "treating" && <TreatmentWarnings />}
             {pageStatus === "room-completing" && consultationId && region && (
               <RoomCompleteCheck
                 consultationId={consultationId}

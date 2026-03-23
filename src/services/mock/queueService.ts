@@ -116,4 +116,33 @@ export const queueService = {
   getMaxQueueSize: async (_departmentId: string): Promise<number> => {
     return DEFAULT_MAX_QUEUE_SIZE;
   },
+
+  /** 按区域获取治疗队列（中终端用，mock 返回全部治疗队列） */
+  getTreatmentQueueByRegion: async (_region: string): Promise<QueueItem[]> => {
+    return treatmentQueue.filter((item) => item.status === "waiting");
+  },
+
+  /** 过号（将患者移到队列末尾） */
+  skipPatient: async (queueItemId: string): Promise<QueueItem> => {
+    const queue = Array.from(waitingQueues.values()).flat();
+    const item = queue.find((i) => i.id === queueItemId);
+    if (!item) {
+      throw new Error(`队列项不存在: ${queueItemId}`);
+    }
+
+    const maxQueueNumber = Math.max(...queue.map((i) => i.queueNumber), 0);
+    item.queueNumber = maxQueueNumber + 1;
+    return { ...item };
+  },
+
+  /** 移出队列（患者不来了） */
+  removeFromQueue: async (queueItemId: string): Promise<void> => {
+    for (const [, queue] of waitingQueues) {
+      const idx = queue.findIndex((i) => i.id === queueItemId);
+      if (idx !== -1) {
+        queue[idx]!.status = "completed";
+        return;
+      }
+    }
+  },
 };
