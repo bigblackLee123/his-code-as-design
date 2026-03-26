@@ -1,40 +1,26 @@
-import { useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PatientCheckIn } from "./blocks/PatientCheckIn";
 import { VitalSignsInput } from "./blocks/VitalSignsInput";
 import { QueueAssignment } from "./blocks/QueueAssignment";
-import type { Patient, VitalSigns } from "@/services/types";
+import { useTriageFlow, type TriageStep } from "./blocks/useTriageFlow";
 import { ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Step = "checkin" | "vitals" | "queue";
-
-const STEPS: { key: Step; label: string; number: number }[] = [
+const STEPS: { key: TriageStep; label: string; number: number }[] = [
   { key: "checkin", label: "患者签到", number: 1 },
   { key: "vitals", label: "生理数据采集", number: 2 },
   { key: "queue", label: "候诊队列分配", number: 3 },
 ];
 
 export function TriageTerminalPage() {
-  const [step, setStep] = useState<Step>("checkin");
-  const [patient, setPatient] = useState<Patient | null>(null);
-  const [vitalSigns, setVitalSigns] = useState<VitalSigns | null>(null);
-
-  const handleCheckInComplete = useCallback((p: Patient) => {
-    setPatient(p);
-    setStep("vitals");
-  }, []);
-
-  const handleVitalsSave = useCallback((v: VitalSigns) => {
-    setVitalSigns(v);
-    setStep("queue");
-  }, []);
-
-  const handleQueueComplete = useCallback(() => {
-    setPatient(null);
-    setVitalSigns(null);
-    setStep("checkin");
-  }, []);
+  const {
+    step,
+    patient,
+    vitalSigns,
+    handleCheckInComplete,
+    handleVitalsSave,
+    handleQueueComplete,
+  } = useTriageFlow();
 
   return (
     <div className="flex flex-col gap-3 h-full bg-neutral-50 p-3">

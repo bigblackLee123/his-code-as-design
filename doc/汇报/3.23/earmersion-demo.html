@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>耳界 Earmersion 智能诊室控制中心</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+@keyframes pa{75%,100%{transform:scale(2);opacity:0}}
+@keyframes pu{50%{opacity:.5}}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.ap{animation:pa 1s cubic-bezier(0,0,.2,1) infinite}
+.au{animation:pu 2s cubic-bezier(.4,0,.6,1) infinite}
+.as{animation:sp 1s linear infinite}
+.af{animation:fu .5s ease-out}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+const Ic=({children,size=20,className=""})=>(<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>);
+const ActI=p=><Ic {...p}><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></Ic>;
+const BrnI=p=><Ic {...p}><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/></Ic>;
+const ClpI=p=><Ic {...p}><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></Ic>;
+const MusI=p=><Ic {...p}><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></Ic>;
+const FilI=p=><Ic {...p}><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></Ic>;
+const PlyI=p=><Ic {...p}><polygon points="6 3 20 12 6 21 6 3"/></Ic>;
+const SndI=p=><Ic {...p}><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></Ic>;
+const SpkI=p=><Ic {...p}><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></Ic>;
+const RefI=p=><Ic {...p}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></Ic>;
+const SrcI=p=><Ic {...p}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></Ic>;
+const ChkI=p=><Ic {...p}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></Ic>;
+const AltI=p=><Ic {...p}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></Ic>;
+const LstI=p=><Ic {...p}><rect width="8" height="4" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></Ic>;
+const ShdI=p=><Ic {...p}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></Ic>;
+const XI=p=><Ic {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></Ic>;
+const StpI=p=><Ic {...p}><rect width="14" height="14" x="5" y="5" rx="1"/></Ic>;
+
+/* == Data == */
+const CI={"心血管":[{c:"CI001",n:"严重心律失常"},{c:"CI007",n:"心血管疾病患者"}],"精神心理":[{c:"CI002",n:"严重抑郁患者"},{c:"CI003",n:"严重精神病性障碍"},{c:"CI004",n:"创伤后应激障碍"},{c:"CI008",n:"急性精神病状态"},{c:"CI011",n:"精神分裂症患者"}],"神经系统":[{c:"CI010",n:"癫痫患者"}],"感官":[{c:"CI006",n:"听力损失"},{c:"CI012",n:"耳鸣"}],"成瘾":[{c:"CI009",n:"物质滥用患者"}],"睡眠区通用":[{c:"CI005",n:"创伤患者"},{c:"CI013",n:"身体疼痛/疾病"}]};
+const PJ=[
+  {id:"p1",rg:"睡眠区",nm:"舒曼波",bpm:50,mood:"平静",eng:"深度镇静",mech:"舒曼波频段与大脑alpha波相似，促进放松",ci:["CI004","CI002","CI006","CI012","CI008","CI001"]},
+  {id:"p2",rg:"睡眠区",nm:"海洋冥想",bpm:55,mood:"平静、接纳",eng:"平静放松",mech:"自然情境深度减压，全身体感放松",ci:["CI004","CI006","CI012","CI008","CI001"]},
+  {id:"p3",rg:"睡眠区",nm:"体感音波",bpm:40,mood:"平静",eng:"深度镇静",mech:"清灵音符让精神世界从无序到有序",ci:["CI006","CI012","CI008","CI001"]},
+  {id:"p4",rg:"情志区",nm:"森林冥想",bpm:55,mood:"放松",eng:"平静放松",mech:"自然情境深度减压",ci:["CI004","CI006","CI012","CI008","CI001"]},
+  {id:"p5",rg:"情志区",nm:"花丛冥想",bpm:40,mood:"愉悦、治愈",eng:"平静放松",mech:"疏肝解郁，引导情绪转向开朗",ci:["CI004","CI006","CI012","CI008","CI001"]},
+  {id:"p6",rg:"情志区",nm:"alpha脑波音乐",bpm:50,mood:"平静",eng:"深度镇静",mech:"alpha波8-12Hz，放松专注缓解压力",ci:["CI003","CI002","CI006","CI012","CI008","CI001"]},
+  {id:"p7",rg:"运动疗愈区",nm:"步态调整",bpm:80,mood:"积极",eng:"激活",mech:"音乐激活听觉-运动耦合，重建流畅步态",ci:["CI010","CI011","CI007","CI009","CI006","CI012","CI008","CI001"]},
+  {id:"p8",rg:"运动疗愈区",nm:"老年认知律动呼吸操",bpm:80,mood:"积极",eng:"激活",mech:"节奏化呼吸练习和身体律动",ci:["CI010","CI011","CI009","CI006","CI012","CI008","CI001"]},
+  {id:"p9",rg:"运动疗愈区",nm:"节奏模打操",bpm:80,mood:"积极",eng:"激活",mech:"听觉接收节奏信号，肢体精确复制",ci:["CI010","CI011","CI009","CI006","CI012","CI008","CI001"]},
+];
+const SC=[
+  {id:"psqi",nm:"匹兹堡睡眠质量指数(PSQI)",ds:"评估近一个月睡眠质量，>7分提示差",qs:[
+    {id:"q1",t:"通常几点上床睡觉？",o:[{l:"22:00前",s:0},{l:"22-23点",s:1},{l:"23-0点",s:2},{l:"0点后",s:3}]},
+    {id:"q2",t:"需要多长时间入睡？",o:[{l:"≤15分钟",s:0},{l:"16-30分钟",s:1},{l:"31-60分钟",s:2},{l:">60分钟",s:3}]},
+    {id:"q3",t:"睡眠效率如何？",o:[{l:">85%",s:0},{l:"75-84%",s:1},{l:"65-74%",s:2},{l:"<65%",s:3}]},
+    {id:"q4",t:"是否使用催眠药物？",o:[{l:"无",s:0},{l:"每周<1次",s:1},{l:"每周1-2次",s:2},{l:"每周≥3次",s:3}]},
+  ]},
+  {id:"gad7",nm:"广泛性焦虑量表(GAD-7)",ds:"评估过去两周焦虑症状",qs:[
+    {id:"g1",t:"感到紧张、焦虑或急切",o:[{l:"完全没有",s:0},{l:"好几天",s:1},{l:"一半以上",s:2},{l:"几乎每天",s:3}]},
+    {id:"g2",t:"不能停止或控制担忧",o:[{l:"完全没有",s:0},{l:"好几天",s:1},{l:"一半以上",s:2},{l:"几乎每天",s:3}]},
+    {id:"g3",t:"很难放松下来",o:[{l:"完全没有",s:0},{l:"好几天",s:1},{l:"一半以上",s:2},{l:"几乎每天",s:3}]},
+    {id:"g4",t:"变得容易烦恼或易怒",o:[{l:"完全没有",s:0},{l:"好几天",s:1},{l:"一半以上",s:2},{l:"几乎每天",s:3}]},
+  ]},
+];
+const WARNS=["患者出现头晕、恶心","患者情绪激动或哭泣不止","患者心率异常升高","患者主动要求停止"];
+const KNOW=["《黄帝内经》素问·五藏生成","现代神经科学: RAS 步态耦合机制","耳界 3D 音频对 Alpha 波影响研究","帕金森非运动症状音乐干预 Meta 分析"];
+
+/* == Mock AI == */
+const mockAI=t=>new Promise(r=>{setTimeout(()=>{
+  if(t==="diagnosis") r("## 智能分流建议\n\n**推荐区域：静区**\n\n### 分析依据\n1. 主诉：睡眠障碍+焦虑，非运动症状为主\n2. HRV偏低(35ms)：交感神经过度激活\n3. 帕金森初期：静止性震颤为主\n\n### 推荐音乐处方\n- **调式**：羽调式(A Minor)\n- **频率**：40Hz Gamma波引导\n- **BPM**：60-70\n- **时长**：25分钟");
+  else if(t==="adverse") r("# 不良事件报告\n\n## 事件概述\n治疗过程中患者出现不适症状，已立即停止治疗。\n\n## 事件详情\n| 项目 | 内容 |\n|------|------|\n| 患者 | 李先生，65岁 |\n| 治疗项目 | 当前选定配方 |\n| 发生时间 | "+new Date().toLocaleString('zh-CN')+" |\n| 症状描述 | 由护士记录 |\n\n## 处置措施\n1. 立即停止音乐播放\n2. 监测生命体征\n3. 通知主治医生\n4. 记录不良事件至HIS系统\n\n## 后续建议\n- 24小时内随访\n- 调整治疗方案\n- 必要时转诊");
+  else r("# 数字音乐治疗结诊报告\n\n## 一、诊断概述\n患者李先生，65岁，主诉入睡困难、手部震颤、焦虑。HRV 35ms，心率82BPM。\n\n## 二、禁忌症筛查\n经系统筛查，未发现绝对禁忌症。\n\n## 三、量表评估\n| 量表 | 得分 | 解读 |\n|------|------|------|\n| PSQI | 12/16 | 睡眠质量差 |\n| GAD-7 | 10/12 | 中度焦虑 |\n\n## 四、治疗方案\n- 干预区域：静区\n- 调式：羽调式\n- 频率：40Hz\n- 时长：25分钟\n\n## 五、效果评估\n| 指标 | 治疗前 | 治疗后 | 变化 |\n|------|--------|--------|------|\n| 心率 | 82 | 74 | ↓9.8% |\n| HRV | 35 | 48 | ↑37.1% |\n\n## 六、家庭康复建议\n1. 每日睡前聆听羽调式低频音乐15分钟\n2. 配合腹式呼吸训练\n3. 一周后复诊");
+},1500);});
+
+/* == Markdown == */
+const rMD=text=>{
+  if(!text)return null;const ls=text.split('\n'),es=[];let iT=false,tR=[];
+  const fl=()=>{if(tR.length>0){es.push(<table key={`t${es.length}`} className="w-full text-sm border-collapse my-3"><thead><tr className="border-b-2 border-slate-300">{tR[0].map((c,i)=><th key={i} className="text-left p-2 font-bold text-slate-700">{c}</th>)}</tr></thead><tbody>{tR.slice(2).map((r,ri)=><tr key={ri} className="border-b border-slate-200">{r.map((c,ci)=><td key={ci} className="p-2 text-slate-600">{c}</td>)}</tr>)}</tbody></table>);tR=[];iT=false;}};
+  ls.forEach((l,i)=>{
+    if(l.startsWith('|')){iT=true;tR.push(l.split('|').filter(c=>c.trim()).map(c=>c.trim()));return;}
+    if(iT)fl();
+    if(l.startsWith('# '))es.push(<h1 key={i} className="text-xl font-bold text-slate-900 mt-4 mb-2">{l.slice(2)}</h1>);
+    else if(l.startsWith('## '))es.push(<h2 key={i} className="text-lg font-bold text-slate-800 mt-3 mb-2">{l.slice(3)}</h2>);
+    else if(l.startsWith('### '))es.push(<h3 key={i} className="text-base font-bold text-slate-700 mt-2 mb-1">{l.slice(4)}</h3>);
+    else if(l.startsWith('- **')){const m=l.match(/^- \*\*(.+?)\*\*[：:](.*)$/);if(m)es.push(<p key={i} className="ml-4 my-1 text-sm"><b className="text-slate-700">{m[1]}：</b><span className="text-slate-600">{m[2].trim()}</span></p>);else es.push(<p key={i} className="ml-4 my-1 text-sm text-slate-600">{l.slice(2)}</p>);}
+    else if(/^\d+\.\s/.test(l))es.push(<p key={i} className="ml-4 my-1 text-sm text-slate-600">{l}</p>);
+    else if(l.startsWith('- '))es.push(<p key={i} className="ml-4 my-1 text-sm text-slate-600">• {l.slice(2)}</p>);
+    else if(l.trim()){const r=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');es.push(<p key={i} className="my-1 text-sm text-slate-600" dangerouslySetInnerHTML={{__html:r}}/>);}
+  });if(iT)fl();return es;
+};
+
+/* == Timer == */
+const useTimer=(dur=25*60)=>{const[el,sE]=useState(0),[run,sR]=useState(false),ref=useRef(null);useEffect(()=>{if(run)ref.current=setInterval(()=>sE(e=>e+1),1000);else clearInterval(ref.current);return()=>clearInterval(ref.current);},[run]);const f=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;return{elapsed:el,running:run,setRunning:sR,display:f(el),total:f(dur)};};
+
+/* == Sub-components == */
+const ContraPanel=({sel,onTog})=>(<div className="flex flex-col gap-3">
+  <div className="flex items-center gap-1.5"><AltI size={16} className="text-amber-500"/><span className="text-sm font-bold text-slate-700">禁忌症筛查</span>{sel.size>0&&<span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">已选{sel.size}</span>}</div>
+  <div className="rounded-xl border border-slate-200 p-3 space-y-3">{Object.entries(CI).map(([cat,items])=>(<div key={cat}><span className="text-xs font-medium text-slate-400 mb-1 block">{cat}</span><div className="grid grid-cols-3 gap-2">{items.map(it=>{const on=sel.has(it.c);return(<label key={it.c} className="flex items-center gap-1.5 cursor-pointer"><input type="checkbox" checked={on} onChange={()=>onTog(it.c)} className="w-3.5 h-3.5 rounded border-slate-300 text-amber-600"/><span className={`text-xs ${on?'text-amber-700 font-medium':'text-slate-600'}`}>{it.n}</span></label>);})}</div></div>))}</div>
+  {sel.size>0&&<div className="bg-amber-50 border border-amber-200 rounded-lg p-2 flex items-start gap-2"><ShdI size={14} className="text-amber-600 mt-0.5 shrink-0"/><span className="text-xs text-amber-700">已标记{sel.size}项禁忌症，AI将自动排除相关方案</span></div>}
+</div>);
+
+const ScalePanel=({results,onSub})=>{
+  const[sid,setSid]=useState("");const[ans,setAns]=useState({});const[done,setDone]=useState(null);
+  const tpl=SC.find(s=>s.id===sid);
+  const tot=tpl?tpl.qs.reduce((s,q)=>{const a=ans[q.id];return a!==undefined?s+(q.o[a]?.s||0):s;},0):0;
+  const ok=tpl?tpl.qs.every(q=>ans[q.id]!==undefined):false;
+  const sub=()=>{if(!tpl||!ok)return;const r={nm:tpl.nm,sc:tot,mx:tpl.qs.length*3};setDone(r);onSub(r);};
+  const rst=()=>{setDone(null);setSid("");setAns({});};
+  return(<div className="flex flex-col gap-3">
+    <div className="flex items-center gap-1.5"><LstI size={16} className="text-indigo-500"/><span className="text-sm font-bold text-slate-700">量表评估</span></div>
+    {done?(<div className="flex items-center justify-between rounded-lg bg-green-50 border border-green-200 p-3"><div className="flex items-center gap-2 text-sm text-green-700"><ChkI size={16}/><span>{done.nm} 已提交（总分：<b>{done.sc}</b>/{done.mx}）</span></div><button onClick={rst} className="text-xs bg-white border border-green-300 text-green-700 px-2 py-1 rounded hover:bg-green-100">重新评估</button></div>):(
+    <><select value={sid} onChange={e=>{setSid(e.target.value);setAns({});}} className="w-full rounded-lg border border-slate-300 bg-slate-50 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"><option value="">请选择量表模板</option>{SC.map(s=><option key={s.id} value={s.id}>{s.nm}</option>)}</select>
+    {tpl&&<div className="flex flex-col gap-2"><p className="text-xs text-slate-500">{tpl.ds}</p><div className="rounded-xl border border-slate-200 divide-y divide-slate-100">{tpl.qs.map((q,qi)=>(<div key={q.id} className="p-3"><p className="text-sm font-medium text-slate-700 mb-2">{qi+1}. {q.t} <span className="text-red-400">*</span></p><div className="flex flex-col gap-1.5">{q.o.map((op,oi)=>(<label key={oi} className="flex items-center gap-2 cursor-pointer"><input type="radio" name={q.id} checked={ans[q.id]===oi} onChange={()=>setAns(p=>({...p,[q.id]:oi}))} className="w-3.5 h-3.5 text-indigo-600"/><span className="text-xs text-slate-600">{op.l} ({op.s}分)</span></label>))}</div></div>))}</div><div className="flex items-center justify-between"><span className="text-sm text-slate-600">当前总分：<b className="text-indigo-600">{tot}</b></span><button onClick={sub} disabled={!ok} className={`text-sm px-4 py-2 rounded-lg font-medium ${ok?'bg-indigo-600 text-white hover:bg-indigo-700':'bg-slate-200 text-slate-400 cursor-not-allowed'}`}>提交量表</button></div></div>}</>)}
+    {results.length>0&&!done&&<div className="space-y-1"><span className="text-xs text-slate-400">已完成：</span>{results.map((r,i)=>(<div key={i} className="flex items-center justify-between bg-slate-50 rounded-lg p-2 text-xs"><span className="text-slate-600">{r.nm}</span><span className="font-medium text-indigo-600">{r.sc}/{r.mx}</span></div>))}</div>}
+  </div>);
+};
+
+/* == Treatment Warning == */
+const WarnPanel=({onStop})=>(<div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
+  <div className="flex items-center gap-2 mb-2"><AltI size={16} className="text-amber-600"/><span className="text-sm font-bold text-amber-700">出现以下症状时需立即停止治疗</span></div>
+  <ul className="space-y-1 mb-3">{WARNS.map(w=>(<li key={w} className="text-xs text-amber-600 flex items-start gap-1"><span className="shrink-0">•</span><span>{w}</span></li>))}</ul>
+  <button onClick={onStop} className="w-full bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-colors"><StpI size={16}/> 紧急停止并生成不良事件报告</button>
+</div>);
+
+/* == Prescription Selector (Stage 2) == */
+const RxSelector=({ciSel,selected,onSelect})=>{
+  const[filter,setFilter]=useState("全部");
+  const regions=["全部","睡眠区","情志区","运动疗愈区"];
+  const filtered=PJ.filter(p=>filter==="全部"||p.rg===filter);
+  const hasCI=(p)=>p.ci.some(c=>ciSel.has(c));
+  const selIds=new Set(selected.map(p=>p.id));
+  const toggle=(p)=>{
+    if(selIds.has(p.id)) onSelect(selected.filter(x=>x.id!==p.id));
+    else{
+      // 同区域只能选1个
+      const next=selected.filter(x=>x.rg!==p.rg);
+      onSelect([...next,p]);
+    }
+  };
+  return(<div className="flex flex-col gap-3">
+    <div className="flex items-center gap-1.5"><MusI size={16} className="text-indigo-500"/><span className="text-sm font-bold text-slate-700">手动选择配方</span>{selected.length>0&&<span className="text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full font-medium">已选{selected.length}</span>}</div>
+    <div className="flex gap-2">{regions.map(r=>(<button key={r} onClick={()=>setFilter(r)} className={`text-xs px-3 py-1 rounded-full transition-colors ${filter===r?'bg-indigo-600 text-white':'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>{r}</button>))}</div>
+    <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">{filtered.map(p=>{
+      const blocked=hasCI(p);const on=selIds.has(p.id);
+      return(<div key={p.id} onClick={()=>!blocked&&toggle(p)} className={`p-3 rounded-xl border cursor-pointer transition-all ${blocked?'border-red-200 bg-red-50 opacity-60 cursor-not-allowed':on?'border-indigo-400 bg-indigo-50 ring-1 ring-indigo-300':'border-slate-200 hover:border-indigo-300 hover:bg-slate-50'}`}>
+        <div className="flex items-center justify-between mb-1"><span className={`text-sm font-bold ${blocked?'text-red-400':on?'text-indigo-700':'text-slate-700'}`}>{p.nm}</span><span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{p.rg}</span></div>
+        <p className="text-xs text-slate-500 mb-1">{p.mech}</p>
+        <div className="flex items-center gap-3 text-xs text-slate-400"><span>BPM: {p.bpm}</span><span>情绪: {p.mood}</span><span>能量: {p.eng}</span></div>
+        {blocked&&<div className="flex items-center gap-1 mt-1 text-xs text-red-500"><AltI size={12}/>禁忌症冲突</div>}
+      </div>);
+    })}</div>
+    {selected.length>0&&<div className="flex flex-wrap gap-1.5">{selected.map(p=>(<span key={p.id} className="inline-flex items-center gap-1 text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full"><span>{p.nm}</span><button onClick={e=>{e.stopPropagation();onSelect(selected.filter(x=>x.id!==p.id));}} className="hover:text-red-500"><XI size={12}/></button></span>))}</div>}
+  </div>);
+};
+
+/* == Stages == */
+const STG=[{id:1,t:"导诊与评估",i:ClpI},{id:2,t:"AI 辅助诊断",i:BrnI},{id:3,t:"静区干预",i:MusI},{id:4,t:"动区康复",i:PlyI},{id:5,t:"归档与报告",i:FilI}];
+
+/* ======== MAIN APP ======== */
+const App=()=>{
+  const[stg,setStg]=useState(1);
+  const[pt]=useState({nm:"李先生",age:65,chief:"最近入睡困难，手部静止性震颤明显，心情焦虑。",hr:82,hrv:35});
+  const[ciSel,setCiSel]=useState(new Set());
+  const[scRes,setScRes]=useState([]);
+  const[aiTxt,setAiTxt]=useState("");
+  const[ld,setLd]=useState(false);
+  const[rpt,setRpt]=useState(null);
+  const[postHR,setPHR]=useState(82);
+  const[postHRV,setPHRV]=useState(35);
+  const[rxSel,setRxSel]=useState([]); // selected prescriptions
+  const[dynBpm,setDynBpm]=useState(80); // dynamic BPM for stage 4
+  const[adverse,setAdverse]=useState(null); // adverse event report
+  const timer=useTimer(25*60);
+
+  useEffect(()=>{if(timer.running&&timer.elapsed>0&&timer.elapsed%5===0){setPHR(h=>Math.max(72,h-1));setPHRV(v=>Math.min(52,v+1));}},[timer.elapsed,timer.running]);
+
+  const togCI=c=>{setCiSel(p=>{const n=new Set(p);n.has(c)?n.delete(c):n.add(c);return n;});};
+  const doDiag=async()=>{setLd(true);const r=await mockAI("diagnosis");setAiTxt(r);setLd(false);setStg(2);};
+  const doRpt=async()=>{setLd(true);setStg(5);const r=await mockAI("report");setRpt(r);setLd(false);};
+  const doAdverse=async()=>{timer.setRunning(false);setLd(true);setStg(5);const r=await mockAI("adverse");setAdverse(r);setRpt(r);setLd(false);};
+  const cHR=stg>=3?postHR:pt.hr;
+  const cHRV=stg>=3?postHRV:pt.hrv;
+
+  return(<div className="min-h-screen bg-slate-50 flex flex-col text-slate-900">
+    {/* Header */}
+    <header className="bg-indigo-900 text-white p-5 shadow-lg flex justify-between items-center">
+      <div><h1 className="text-2xl font-bold flex items-center gap-2"><ActI className="text-indigo-300"/>耳界 Earmersion 智能诊室控制中心</h1><p className="text-xs text-indigo-200 mt-1 opacity-80 uppercase tracking-widest">Digital Music Therapy Intelligent SOP System</p></div>
+      <div className="flex items-center gap-2 bg-indigo-800 px-4 py-2 rounded-lg border border-indigo-700"><span className="w-2 h-2 bg-green-400 rounded-full au"></span><span className="text-sm font-medium">耳界疗愈大模型就绪</span></div>
+    </header>
+
+    <main className="flex-grow flex p-6 gap-6 overflow-hidden">
+      {/* Left Nav */}
+      <nav className="w-72 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col gap-2 shrink-0">
+        <h2 className="text-sm font-bold text-slate-400 mb-4 px-2 uppercase">诊疗路径导航</h2>
+        {STG.map(s=>(<button key={s.id} onClick={()=>setStg(s.id)} className={`flex items-center gap-3 p-4 rounded-xl transition-all text-left ${stg===s.id?"bg-indigo-50 text-indigo-700 border-l-4 border-indigo-600 shadow-sm":"text-slate-500 hover:bg-slate-50"}`}><s.i size={20}/><span className="font-semibold">{s.t}</span></button>))}
+        <div className="mt-auto p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300"><p className="text-xs text-slate-400 leading-relaxed">* 本系统集成耳界疗愈大模型，提供实时临床决策支持。<br/>(演示模式)</p></div>
+      </nav>
+
+      {/* Middle */}
+      <div className="flex-grow bg-white rounded-3xl shadow-sm border border-slate-200 overflow-y-auto">
+
+        {/* Stage 1 */}
+        {stg===1&&(<div className="p-8 space-y-6">
+          <h3 className="text-xl font-bold flex items-center gap-2"><ClpI className="text-indigo-600"/> 第一阶段：导诊与初步评估</h3>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <label className="block"><span className="text-sm font-bold text-slate-600">病历主诉摘要</span><textarea className="mt-1 block w-full rounded-xl border border-slate-300 bg-slate-50 p-4 h-28 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300" defaultValue={pt.chief}/></label>
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block"><span className="text-sm font-bold text-slate-600">实时心率(BPM)</span><input type="number" className="mt-1 block w-full rounded-lg border border-slate-300 bg-slate-50 p-2" defaultValue={pt.hr}/></label>
+                <label className="block"><span className="text-sm font-bold text-slate-600">HRV指标</span><input type="number" className="mt-1 block w-full rounded-lg border border-slate-300 bg-slate-50 p-2" defaultValue={pt.hrv}/></label>
+              </div>
+            </div>
+            <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100 flex flex-col justify-center items-center text-center">
+              <SpkI size={48} className="text-indigo-400 mb-4"/>
+              <h4 className="font-bold text-indigo-900 mb-2">✨ 生成 AI 预诊建议</h4>
+              <p className="text-sm text-indigo-700 opacity-70 mb-6">基于《黄帝内经》五音模型与耳界疗愈大模型文献库</p>
+              <button onClick={doDiag} disabled={ld} className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 transition-transform active:scale-95 disabled:opacity-50">{ld?<RefI size={18} className="as"/>:<SndI size={18}/>}开始智能分析</button>
+            </div>
+          </div>
+          <ContraPanel sel={ciSel} onTog={togCI}/>
+          <ScalePanel results={scRes} onSub={r=>setScRes(p=>[...p,r])}/>
+        </div>)}
+
+        {/* Stage 2: AI Diagnosis + Manual Rx */}
+        {stg===2&&(<div className="p-8 af">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><BrnI className="text-purple-600"/> 第二阶段：AI 辅助诊断建议</h3>
+          <div className="bg-slate-900 rounded-2xl p-6 text-indigo-300 text-sm min-h-[200px]">
+            {ld?(<div className="flex flex-col items-center justify-center h-48 gap-4"><RefI className="as text-indigo-500" size={32}/><p className="au">耳界疗愈大模型正在检索文献库...</p></div>):(
+            <div className="leading-relaxed"><div className="flex items-center gap-2 text-white mb-4 border-b border-slate-700 pb-2"><SpkI size={16}/><span>耳界疗愈大模型临床分析结果：</span></div><div className="text-indigo-200">{aiTxt?rMD(aiTxt):"点击上一环节的分析按钮开始。"}</div></div>)}
+          </div>
+          {ciSel.size>0&&<div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2"><ShdI size={16} className="text-amber-600 mt-0.5 shrink-0"/><span className="text-xs text-amber-700"><b>禁忌症提醒：</b>已标记{ciSel.size}项，已排除相关方案。</span></div>}
+          {scRes.length>0&&<div className="mt-3 bg-indigo-50 border border-indigo-200 rounded-xl p-3 flex items-start gap-2"><LstI size={16} className="text-indigo-600 mt-0.5 shrink-0"/><span className="text-xs text-indigo-700"><b>量表摘要：</b>{scRes.map((r,i)=><span key={i}>{i>0?" / ":""}{r.nm} {r.sc}/{r.mx}</span>)}</span></div>}
+
+          {/* Manual Prescription Selector */}
+          <div className="mt-6"><RxSelector ciSel={ciSel} selected={rxSel} onSelect={setRxSel}/></div>
+
+          <div className="mt-6 flex gap-4">
+            <button onClick={()=>{timer.setRunning(true);setStg(3);}} className="flex-1 bg-blue-100 text-blue-700 p-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-200 transition-colors"><MusI size={20}/> 进入静区</button>
+            <button onClick={()=>setStg(4)} className="flex-1 bg-emerald-100 text-emerald-700 p-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-emerald-200 transition-colors"><PlyI size={20}/> 进入动区</button>
+          </div>
+        </div>)}
+
+        {/* Stage 3: 静区 */}
+        {stg===3&&(<div className="p-8 af">
+          <div className="flex justify-between items-center mb-6"><h3 className="text-xl font-bold flex items-center gap-2"><MusI className="text-blue-600"/> 第三阶段：静区干预控制面板</h3><span className={`px-3 py-1 rounded-full text-xs font-bold ${timer.running?'bg-blue-100 text-blue-700':'bg-slate-100 text-slate-500'}`}>{timer.running?'闭环调控中':'已暂停'}</span></div>
+          <div className="grid grid-cols-3 gap-6">
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200"><h4 className="text-sm font-bold text-slate-500 mb-4">声波验光</h4><div className="h-2 w-full bg-slate-200 rounded-full mb-4 overflow-hidden"><div className={`h-full bg-blue-500 w-2/3 ${timer.running?'au':''}`}></div></div><p className="text-2xl font-black text-blue-600">40 Hz</p><p className="text-xs text-slate-400 mt-2">Gamma波引导</p></div>
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200"><h4 className="text-sm font-bold text-slate-500 mb-4">调式组织</h4><p className="text-2xl font-black text-indigo-600">羽调式</p><p className="text-lg text-indigo-400">(A Minor)</p><p className="text-xs text-slate-400 mt-2">对应肾脏气机</p></div>
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200"><h4 className="text-sm font-bold text-slate-500 mb-4">执行时长</h4><p className="text-2xl font-black text-slate-700">{timer.display} <span className="text-sm font-normal text-slate-400">/ {timer.total}</span></p><button onClick={()=>timer.setRunning(!timer.running)} className="mt-3 text-xs bg-slate-200 hover:bg-slate-300 px-3 py-1 rounded-full">{timer.running?'暂停':'继续'}</button></div>
+          </div>
+          {rxSel.filter(p=>p.rg==="睡眠区"||p.rg==="情志区").length>0&&<div className="mt-4 bg-indigo-50 rounded-xl p-3 border border-indigo-200"><span className="text-xs font-bold text-indigo-600">当前配方：</span>{rxSel.filter(p=>p.rg!=="运动疗愈区").map(p=><span key={p.id} className="text-xs text-indigo-700 ml-2">{p.nm}(BPM:{p.bpm})</span>)}</div>}
+          <div className="mt-6 p-10 flex items-center justify-center bg-blue-50 rounded-3xl border border-blue-100">
+            <div className="relative">{timer.running&&<div className="w-32 h-32 bg-blue-500 rounded-full ap opacity-20 absolute"></div>}<div className="w-32 h-32 bg-blue-600 rounded-full flex items-center justify-center relative shadow-2xl"><MusI className="text-white" size={48}/></div></div>
+          </div>
+          {/* Treatment Warning */}
+          <div className="mt-6"><WarnPanel onStop={doAdverse}/></div>
+          <button onClick={()=>{timer.setRunning(false);doRpt();}} className="mt-4 w-full bg-slate-900 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800"><ClpI size={20}/> 疗程结束，生成评估报告</button>
+        </div>)}
+
+        {/* Stage 4: 动区 with BPM control */}
+        {stg===4&&(<div className="p-8 af">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><PlyI className="text-emerald-600"/> 第四阶段：动区康复训练</h3>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
+              <h4 className="text-sm font-bold text-emerald-700 mb-4">RAS 节奏听觉刺激</h4>
+              <p className="text-3xl font-black text-emerald-600 mb-2">{dynBpm} BPM</p>
+              <p className="text-xs text-emerald-500 mb-3">步态耦合节拍 — 拖动调节速度</p>
+              <input type="range" min="60" max="140" step="5" value={dynBpm} onChange={e=>setDynBpm(Number(e.target.value))} className="w-full accent-emerald-600"/>
+              <div className="flex justify-between text-xs text-emerald-400 mt-1"><span>60</span><span>100</span><span>140</span></div>
+            </div>
+            <div className="bg-amber-50 p-6 rounded-2xl border border-amber-100">
+              <h4 className="text-sm font-bold text-amber-700 mb-4">运动传感器数据</h4>
+              <div className="space-y-3">{[["步幅对称性","w-3/4"],["节奏同步率","w-4/5"],["平衡稳定度","w-2/3"]].map(([n,w])=>(<div key={n}><span className="text-xs text-amber-600">{n}</span><div className="h-2 bg-amber-200 rounded-full mt-1"><div className={`h-full bg-amber-500 rounded-full ${w}`}></div></div></div>))}</div>
+            </div>
+          </div>
+          {rxSel.filter(p=>p.rg==="运动疗愈区").length>0&&<div className="mt-4 bg-emerald-50 rounded-xl p-3 border border-emerald-200"><span className="text-xs font-bold text-emerald-600">当前配方：</span>{rxSel.filter(p=>p.rg==="运动疗愈区").map(p=><span key={p.id} className="text-xs text-emerald-700 ml-2">{p.nm}</span>)}</div>}
+          <div className="mt-6 bg-slate-50 rounded-2xl p-6 border border-slate-200">
+            <h4 className="text-sm font-bold text-slate-500 mb-3">训练进度</h4>
+            <div className="flex items-center gap-3">{[`热身(${Math.max(60,dynBpm-20)})`,`基础(${dynBpm-10})`,`强化(${dynBpm})`,`放松(${Math.max(60,dynBpm-30)})`].map((ph,i)=>(<React.Fragment key={i}><div className={`flex-1 text-center p-3 rounded-lg text-xs font-bold ${i<=2?'bg-emerald-100 text-emerald-700':'bg-slate-200 text-slate-400'}`}>{ph}</div>{i<3&&<span className="text-slate-300">→</span>}</React.Fragment>))}</div>
+          </div>
+          {/* Treatment Warning */}
+          <div className="mt-6"><WarnPanel onStop={doAdverse}/></div>
+          <button onClick={doRpt} className="mt-4 w-full bg-slate-900 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800"><ClpI size={20}/> 训练结束，生成评估报告</button>
+        </div>)}
+
+        {/* Stage 5: Report */}
+        {stg===5&&(<div className="p-8 af">
+          <h3 className="text-xl font-bold mb-6 flex items-center gap-2"><FilI className="text-indigo-600"/> 第五阶段：归档与报告</h3>
+          {adverse&&<div className="mb-4 bg-red-50 border-2 border-red-300 rounded-xl p-3 flex items-center gap-2"><AltI size={18} className="text-red-600 shrink-0"/><span className="text-sm font-bold text-red-700">⚠️ 本报告为不良事件报告 — 治疗过程中患者出现不适</span></div>}
+          <div className="bg-white border-2 border-slate-100 rounded-2xl p-8 shadow-inner min-h-[350px]">
+            {ld?(<div className="flex flex-col items-center justify-center h-48 gap-4"><RefI className="as text-indigo-500" size={32}/><p className="text-slate-500">✨ 耳界疗愈大模型正在{adverse?'生成不良事件报告':'整合诊疗数据'}...</p></div>):(
+            <div><div className="flex justify-between border-b-2 border-slate-900 pb-4 mb-6"><h2 className="text-2xl font-bold text-slate-900">{adverse?'不良事件报告':'数字音乐治疗结诊报告'}</h2><div className="text-right text-xs text-slate-400">报告编号：EM-2025-001<br/>生成时间：{new Date().toLocaleString('zh-CN')}</div></div><div className="text-slate-700 leading-relaxed">{rpt?rMD(rpt):"生成中..."}</div></div>)}
+          </div>
+          <div className="mt-6 flex gap-4">
+            <button onClick={()=>{setRpt(null);setAdverse(null);setStg(1);}} className="flex-1 border-2 border-slate-200 p-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-slate-50"><RefI size={18}/> 重新开始</button>
+            <button className={`flex-1 p-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg ${adverse?'bg-red-600 hover:bg-red-700 text-white':'bg-green-600 hover:bg-green-700 text-white'}`}><ChkI size={18}/> {adverse?'提交不良事件至HIS':'确认并归档至HIS系统'}</button>
+          </div>
+        </div>)}
+      </div>
+
+      {/* Right Sidebar */}
+      <aside className="w-80 space-y-4 shrink-0">
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+          <h4 className="text-xs font-bold text-slate-400 uppercase mb-4 tracking-widest flex items-center justify-between">患者状态看板<ActI size={14} className="text-green-500"/></h4>
+          <div className="space-y-6">
+            <div className="flex justify-between items-end"><div><p className="text-xs text-slate-400">心率变化</p><p className="text-2xl font-black text-slate-800">{cHR} <span className="text-xs font-normal">BPM</span></p></div><div className="flex gap-0.5 items-end h-8">{[40,60,45,70,50,65,55].map((h,i)=><div key={i} className="bg-blue-300 w-1.5 rounded-t-full" style={{height:`${h}%`}}/>)}</div></div>
+            <div className="flex justify-between items-end"><div><p className="text-xs text-slate-400">HRV 自主神经活性</p><p className="text-2xl font-black text-indigo-600">{cHRV} <span className="text-xs font-normal">ms</span></p></div><div className={`text-xs font-bold px-2 py-1 rounded ${cHRV>40?'text-green-600 bg-green-50':'text-amber-600 bg-amber-50'}`}>{cHRV>40?'改善中':'偏低'}</div></div>
+          </div>
+        </div>
+        {ciSel.size>0&&<div className="bg-amber-50 rounded-2xl p-5 border border-amber-200"><h4 className="text-xs font-bold text-amber-600 uppercase mb-3 tracking-widest flex items-center gap-1.5"><AltI size={12}/>禁忌症标记</h4><div className="flex flex-wrap gap-1.5">{[...ciSel].map(code=>{const it=Object.values(CI).flat().find(x=>x.c===code);return it&&<span key={code} className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">{it.n}</span>;})}</div></div>}
+        {scRes.length>0&&<div className="bg-indigo-50 rounded-2xl p-5 border border-indigo-200"><h4 className="text-xs font-bold text-indigo-600 uppercase mb-3 tracking-widest flex items-center gap-1.5"><LstI size={12}/>量表评估</h4><div className="space-y-2">{scRes.map((r,i)=>(<div key={i} className="flex justify-between text-xs"><span className="text-indigo-700">{r.nm}</span><span className="font-bold text-indigo-600">{r.sc}/{r.mx}</span></div>))}</div></div>}
+        {rxSel.length>0&&<div className="bg-indigo-50 rounded-2xl p-5 border border-indigo-200"><h4 className="text-xs font-bold text-indigo-600 uppercase mb-3 tracking-widest flex items-center gap-1.5"><MusI size={12}/>已选配方</h4><div className="space-y-2">{rxSel.map(p=>(<div key={p.id} className="flex justify-between text-xs"><span className="text-indigo-700">{p.nm}</span><span className="text-slate-400">{p.rg}</span></div>))}</div></div>}
+        <div className="bg-indigo-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform"><BrnI size={120}/></div>
+          <h4 className="text-xs font-bold text-indigo-300 uppercase mb-4 tracking-widest relative z-10">AI 知识库匹配</h4>
+          <div className="space-y-3 relative z-10">{KNOW.map((t,i)=>(<div key={i} className="flex items-center gap-2 text-xs bg-white/10 p-2 rounded border border-white/5 hover:bg-white/20 cursor-pointer transition-colors"><SrcI size={10} className="text-indigo-300 shrink-0"/>{t}</div>))}</div>
+          <div className="mt-6 pt-4 border-t border-white/10 text-xs text-indigo-300 italic">"✨ 耳界疗愈大模型深度神经调控算法已启动..."</div>
+        </div>
+      </aside>
+    </main>
+
+    <footer className="bg-white border-t border-slate-200 p-4 flex justify-between items-center text-slate-400 text-xs px-8">
+      <div className="flex gap-6"><span>诊室ID: DG-SH-001</span><span>医生: 秦教授</span><span>安全等级: 医疗级加密</span></div>
+      <div className="font-medium text-slate-500">Powered by <span className="text-indigo-600 font-bold tracking-tighter">Earmersion AI Engine</span></div>
+    </footer>
+  </div>);
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

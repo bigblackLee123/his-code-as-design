@@ -1,10 +1,12 @@
-import { useState, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { treatmentQueueService } from "@/services/supabase/treatmentQueueService";
-import type { RoomCompleteResult } from "@/services/types";
-import { CheckCircle, MapPin, ArrowRight, RotateCcw } from "lucide-react";
+import { useRoomComplete } from "./useRoomComplete";
+import {
+  CheckCircle,
+  AlertTriangle,
+  MapPin,
+  ArrowRight,
+  RotateCcw,
+} from "lucide-react";
 
 export interface RoomCompleteCheckProps {
   consultationId: string;
@@ -14,95 +16,117 @@ export interface RoomCompleteCheckProps {
 }
 
 export function RoomCompleteCheck({ consultationId, region, onAllDone, onNextPatient }: RoomCompleteCheckProps) {
-  const [state, setState] = useState<"loading" | "partial" | "done" | "error">("loading");
-  const [result, setResult] = useState<RoomCompleteResult | null>(null);
-  const [errorMsg, setErrorMsg] = useState("");
+  const { state, result, errorMsg, retry } = useRoomComplete(consultationId, region);
 
-  const handleComplete = useCallback(async () => {
-    setState("loading");
-    setErrorMsg("");
-    try {
-      const res = await treatmentQueueService.completeRoom(consultationId, region);
-      setResult(res);
-      setState(res.allDone ? "done" : "partial");
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "完成失败");
-      setState("error");
-    }
-  }, [consultationId, region]);
-
-  // Auto-trigger on mount
-  useState(() => { handleComplete(); });
-
+  // loading
   if (state === "loading") {
     return (
-      <div className="flex items-center justify-center py-4 text-xs text-neutral-500">
-        正在完成本房间治疗...
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-10 w-10 rounded-full border-2 border-primary-300 border-t-primary-600 animate-spin" />
+          <span className="text-xs text-neutral-500">正在完成本房间治疗…</span>
+        </div>
       </div>
     );
   }
 
+  // error
   if (state === "error") {
     return (
-      <div className="flex flex-col gap-2 rounded-md border border-neutral-200 p-2">
-        <Alert variant="destructive">
-          <AlertTitle className="text-xs font-medium">完成失败</AlertTitle>
-          <AlertDescription className="text-xs">{errorMsg}</AlertDescription>
-        </Alert>
-        <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={handleComplete}>
-            <RotateCcw className="h-3 w-3" /><span>重试</span>
-          </Button>
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="rounded-full bg-error-100 p-4">
+            <AlertTriangle className="h-10 w-10 text-error-500" />
+          </div>
+          <span className="text-sm font-bold text-error-700">完成失败</span>
+          <span className="text-xs text-neutral-500">{errorMsg}</span>
+          <button
+            type="button"
+            onClick={retry}
+            className="flex items-center gap-1 rounded-full bg-error-50 px-4 py-2 text-xs font-medium text-error-700 hover:bg-error-100 transition-colors"
+          >
+            <RotateCcw className="h-3 w-3" />
+            重试
+          </button>
         </div>
       </div>
     );
   }
 
+  // partial：还有其他房间
   if (state === "partial" && result) {
     return (
-      <div className="flex flex-col gap-2 rounded-md border border-primary-200 bg-primary-50 p-3">
-        <div className="flex items-center gap-1">
-          <CheckCircle className="h-4 w-4 text-success-500" />
-          <span className="text-xs font-medium text-neutral-800 leading-tight">本房间治疗完成</span>
-        </div>
-        <div className="text-xs text-neutral-600 leading-tight">患者还需前往以下房间完成剩余项目：</div>
-        <div className="flex flex-col gap-1">
-          {result.pendingRegions.map((r) => {
-            const stepsInRegion = result.pendingSteps.filter((s) => s.region === r);
-            return (
-              <div key={r} className="flex items-center gap-2 rounded-md bg-white px-2 py-1.5">
-                <MapPin className="h-3 w-3 text-primary-500" />
-                <span className="text-xs font-medium text-neutral-800">{r}</span>
-                <div className="flex gap-1 flex-wrap">
-                  {stepsInRegion.map((s) => (
-                    <Badge key={s.id} variant="outline" className="text-xs px-1 py-0">{s.projectName}</Badge>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={onNextPatient}>
-            <ArrowRight className="h-3 w-3" /><span>等待下一位患者</span>
-          </Button>
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-6 w-full max-w-lg">
+          {/* 成功图标 */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="rounded-full bg-success-100 p-4">
+              <CheckCircle className="h-10 w-10 text-success-500" />
+            </div>
+            <span className="text-sm font-bold text-success-700">
+              {region} 治疗完成
+            </span>
+          </div>
+
+          {/* 待前往房间 */}
+          <div className="w-full rounded-xl border border-warning-200 bg-warning-50/50 p-4 flex flex-col gap-2">
+            <span className="text-xs font-medium text-neutral-800 leading-tight">
+              患者还需前往以下房间：
+            </span>
+            <div className="flex flex-col gap-2">
+              {result.pendingRegions.map((r) => {
+                const steps = result.pendingSteps.filter((s) => s.region === r);
+                return (
+                  <div key={r} className="flex items-center gap-2 rounded-xl bg-white border border-neutral-200 px-3 py-2">
+                    <MapPin className="h-4 w-4 text-primary-500 shrink-0" />
+                    <span className="text-xs font-medium text-neutral-800">{r}</span>
+                    <div className="flex gap-1 flex-wrap ml-auto">
+                      {steps.map((s) => (
+                        <Badge key={s.id} className="text-xs px-2 py-0.5 bg-secondary-50 text-secondary-700 border-secondary-200">
+                          {s.projectName}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 操作按钮 */}
+          <button
+            type="button"
+            onClick={onNextPatient}
+            className="flex items-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm px-8 py-4 transition-colors"
+          >
+            <ArrowRight className="h-4 w-4" />
+            等待下一位患者
+          </button>
         </div>
       </div>
     );
   }
 
-  // allDone
+  // allDone：全部完成
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-success-200 bg-success-50 p-3">
-      <div className="flex items-center gap-1">
-        <CheckCircle className="h-4 w-4 text-success-600" />
-        <span className="text-xs font-medium text-success-800 leading-tight">全部疗愈项目已完成</span>
-      </div>
-      <div className="text-xs text-neutral-600 leading-tight">请继续完成治疗后数据采集。</div>
-      <div className="flex justify-end">
-        <Button size="sm" onClick={onAllDone}>
-          <ArrowRight className="h-3 w-3" /><span>开始采集</span>
-        </Button>
+    <div className="flex h-full items-center justify-center p-6">
+      <div className="flex flex-col items-center gap-6 w-full max-w-lg">
+        <div className="flex flex-col items-center gap-2">
+          <div className="rounded-full bg-success-100 p-4">
+            <CheckCircle className="h-10 w-10 text-success-500" />
+          </div>
+          <span className="text-sm font-bold text-success-700">全部疗愈项目已完成</span>
+          <span className="text-xs text-neutral-500">请继续完成治疗后数据采集</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={onAllDone}
+          className="flex items-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm px-8 py-4 transition-colors"
+        >
+          <ArrowRight className="h-4 w-4" />
+          开始采集
+        </button>
       </div>
     </div>
   );

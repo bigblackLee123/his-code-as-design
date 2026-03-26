@@ -1,11 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { MaskedText } from "@/components/his/MaskedText";
-import { queueService } from "@/services";
-import { useQueueRealtime } from "@/hooks/useQueueRealtime";
-import type { Patient, VitalSigns, QueueItem } from "@/services/types";
+import { useQueueAssignment } from "./useQueueAssignment";
+import type { Patient, VitalSigns } from "@/services/types";
 import { Users, CheckCircle, AlertTriangle, RotateCcw } from "lucide-react";
 
 export interface QueueAssignmentProps {
@@ -14,71 +12,10 @@ export interface QueueAssignmentProps {
   onComplete: () => void;
 }
 
-const DEPARTMENT_ID = "DEPT001";
 const DEPARTMENT_NAME = "中医内科";
 
-type Status = "preview" | "assigning" | "assigned" | "full" | "error";
-
 export function QueueAssignment({ patient, vitalSigns, onComplete }: QueueAssignmentProps) {
-  const [status, setStatus] = useState<Status>("preview");
-  const [waitingCount, setWaitingCount] = useState(0);
-  const [maxSize, setMaxSize] = useState(0);
-  const [queueItem, setQueueItem] = useState<QueueItem | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const loadQueueInfo = useCallback(async () => {
-    try {
-      const [queue, max] = await Promise.all([
-        queueService.getWaitingQueue(DEPARTMENT_ID),
-        queueService.getMaxQueueSize(DEPARTMENT_ID),
-      ]);
-      setWaitingCount(queue.length);
-      setMaxSize(max);
-    } catch {
-      // 静默失败，保持当前计数
-    }
-  }, []);
-
-  // 初始加载时检查队列是否已满
-  useEffect(() => {
-    (async () => {
-      try {
-        const [queue, max] = await Promise.all([
-          queueService.getWaitingQueue(DEPARTMENT_ID),
-          queueService.getMaxQueueSize(DEPARTMENT_ID),
-        ]);
-        setWaitingCount(queue.length);
-        setMaxSize(max);
-        setStatus(queue.length >= max ? "full" : "preview");
-      } catch {
-        setErrorMsg("加载队列信息失败");
-        setStatus("error");
-      }
-    })();
-  }, []);
-
-  // Realtime: update waiting count on queue changes
-  useQueueRealtime(useCallback(() => {
-    loadQueueInfo();
-  }, [loadQueueInfo]));
-
-  const handleAssign = async () => {
-    setStatus("assigning");
-    setErrorMsg(null);
-    try {
-      const item = await queueService.enqueueWaiting(patient.id, DEPARTMENT_ID);
-      setQueueItem(item);
-      setStatus("assigned");
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "分配失败，请重试";
-      setErrorMsg(msg);
-      if (msg.includes("已满")) {
-        setStatus("full");
-      } else {
-        setStatus("error");
-      }
-    }
-  };
+  const { status, waitingCount, maxSize, queueItem, errorMsg, loadQueueInfo, handleAssign } = useQueueAssignment(patient.id);
 
   return (
     <Card className="rounded-lg shadow-sm">

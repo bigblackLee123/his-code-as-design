@@ -87,9 +87,7 @@ export function PatientInfoBar({ patient }: PatientInfoBarProps) {
 
           <div className="flex items-center gap-1">
             <span className="text-xs text-neutral-500">医保卡：</span>
-            <span className="font-mono text-xs font-medium text-primary-600">
-              {patient.insuranceCardNo.slice(-4)}
-            </span>
+            <MaskedText type="insuranceCard" value={patient.insuranceCardNo} />
           </div>
         </div>
 

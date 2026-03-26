@@ -41,7 +41,7 @@ export function StatusTransition({ patient, selectedProjects, onComplete }: Stat
             </div>
             <div className="flex gap-1">
               <span className="text-neutral-500">医保卡号：</span>
-              <span className="font-mono text-neutral-700">{patient.insuranceCardNo}</span>
+              <MaskedText type="insuranceCard" value={patient.insuranceCardNo} />
             </div>
           </div>
         </div>

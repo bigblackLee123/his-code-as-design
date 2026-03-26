@@ -1,12 +1,9 @@
-import { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+import { useState, useCallback, useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
 import { useTherapyProjects } from "./useTherapyProjects";
 import type { TherapyProject, Contraindication } from "@/services/types";
-import { Music, Search } from "lucide-react";
-import {
-  ProjectDropdownList,
-  SelectedProjectBadge,
-} from "./TherapyProjectSelectorParts";
+import { Music, AlertTriangle, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface TherapyProjectSelectorProps {
   selectedProjects: TherapyProject[];
@@ -23,21 +20,7 @@ export function getMatchedContraindications(
   return project.contraindications.filter((c) => patientNames.has(c));
 }
 
-/** 按关键词过滤项目列表 */
-export function filterProjectsByKeyword(
-  projects: TherapyProject[],
-  keyword: string,
-): TherapyProject[] {
-  const k = keyword.toLowerCase().trim();
-  if (!k) return projects;
-  return projects.filter(
-    (p) =>
-      p.name.toLowerCase().includes(k) ||
-      p.region.toLowerCase().includes(k) ||
-      p.targetAudience.toLowerCase().includes(k) ||
-      p.mood.toLowerCase().includes(k),
-  );
-}
+const REGIONS = ["全部", "睡眠区", "情志区", "运动疗愈区"] as const;
 
 export function TherapyProjectSelector({
   selectedProjects,
@@ -45,9 +28,7 @@ export function TherapyProjectSelector({
   onSelect,
 }: TherapyProjectSelectorProps) {
   const { allProjects } = useTherapyProjects();
-  const [keyword, setKeyword] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [regionFilter, setRegionFilter] = useState<string>("全部");
 
   const selectedIds = useMemo(
     () => new Set(selectedProjects.map((p) => p.id)),
@@ -55,100 +36,127 @@ export function TherapyProjectSelector({
   );
 
   const filtered = useMemo(
-    () => filterProjectsByKeyword(allProjects, keyword),
-    [allProjects, keyword],
+    () => regionFilter === "全部"
+      ? allProjects
+      : allProjects.filter((p) => p.region === regionFilter),
+    [allProjects, regionFilter],
   );
 
-  const handleAdd = useCallback(
+  const handleToggle = useCallback(
     (project: TherapyProject) => {
-      if (selectedIds.has(project.id)) return;
-      // 同区域只能选 1 个：替换已有的同区域项目
-      const withoutSameRegion = selectedProjects.filter(
-        (p) => p.region !== project.region,
-      );
-      onSelect([...withoutSameRegion, project]);
+      if (selectedIds.has(project.id)) {
+        onSelect(selectedProjects.filter((p) => p.id !== project.id));
+      } else {
+        // 同区域只能选 1 个
+        const withoutSameRegion = selectedProjects.filter(
+          (p) => p.region !== project.region,
+        );
+        onSelect([...withoutSameRegion, project]);
+      }
     },
     [selectedProjects, selectedIds, onSelect],
   );
 
-  const handleRemove = useCallback(
-    (projectId: string) => {
-      onSelect(selectedProjects.filter((p) => p.id !== projectId));
-    },
-    [selectedProjects, onSelect],
-  );
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-1">
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-1.5">
         <Music className="h-4 w-4 text-primary-500" aria-hidden="true" />
-        <span className="text-xs font-medium text-neutral-800 leading-tight">
-          疗愈项目处方
+        <span className="text-xs font-bold text-neutral-700 leading-tight">
+          手动选择配方
         </span>
-      </div>
-
-      <div ref={containerRef} className="relative">
-        <div className="relative">
-          <Search
-            className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-neutral-400"
-            aria-hidden="true"
-          />
-          <Input
-            type="search"
-            placeholder="输入项目名称/区域/人群/情绪关键词检索"
-            value={keyword}
-            onChange={(e) => {
-              setKeyword(e.target.value);
-              setIsOpen(true);
-            }}
-            onFocus={() => setIsOpen(true)}
-            className="pl-7 text-xs leading-tight h-7"
-            aria-label="疗愈项目搜索"
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
-            inputMode="search"
-          />
-        </div>
-
-        {isOpen && filtered.length > 0 && (
-          <ProjectDropdownList
-            projects={filtered}
-            selectedIds={selectedIds}
-            patientContraindications={patientContraindications}
-            onAdd={handleAdd}
-          />
-        )}
-
-        {isOpen && keyword.trim() && filtered.length === 0 && (
-          <div className="absolute z-10 bottom-full mb-1 w-full rounded-md border border-neutral-200 bg-white shadow-md px-2 py-2 text-xs text-neutral-400 text-center">
-            未找到匹配的疗愈项目
-          </div>
+        {selectedProjects.length > 0 && (
+          <Badge className="text-xs px-1.5 py-0 bg-primary-100 text-primary-700">
+            已选 {selectedProjects.length}
+          </Badge>
         )}
       </div>
 
-      {selectedProjects.length > 0 && (
-        <div className="flex flex-col gap-1">
-          {selectedProjects.map((project) => (
-            <SelectedProjectBadge
+      {/* 区域 Tab Pill */}
+      <div className="flex gap-2">
+        {REGIONS.map((r) => (
+          <button
+            key={r}
+            type="button"
+            onClick={() => setRegionFilter(r)}
+            className={cn(
+              "text-xs px-3 py-1 rounded-full transition-colors",
+              regionFilter === r
+                ? "bg-primary-600 text-white"
+                : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+            )}
+          >
+            {r}
+          </button>
+        ))}
+      </div>
+
+      {/* 卡片网格 */}
+      <div className="flex flex-col gap-2 max-h-64 overflow-y-auto">
+        {filtered.map((project) => {
+          const matched = getMatchedContraindications(project, patientContraindications);
+          const isBlocked = matched.length > 0;
+          const isSelected = selectedIds.has(project.id);
+          return (
+            <button
               key={project.id}
-              project={project}
-              onRemove={handleRemove}
-            />
+              type="button"
+              disabled={isBlocked}
+              onClick={() => !isBlocked && handleToggle(project)}
+              className={cn(
+                "p-3 rounded-xl border text-left transition-all",
+                isBlocked
+                  ? "border-error-200 bg-error-50 opacity-60 cursor-not-allowed"
+                  : isSelected
+                    ? "border-primary-400 bg-primary-50 ring-1 ring-primary-300"
+                    : "border-neutral-200 hover:border-primary-300 hover:bg-neutral-50 cursor-pointer"
+              )}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className={cn(
+                  "text-xs font-bold",
+                  isBlocked ? "text-error-400" : isSelected ? "text-primary-700" : "text-neutral-700"
+                )}>
+                  {project.name}
+                </span>
+                <span className="text-xs bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full">
+                  {project.region}
+                </span>
+              </div>
+              <p className="text-xs text-neutral-500 mb-1 leading-tight">{project.mechanism}</p>
+              <div className="flex items-center gap-3 text-xs text-neutral-400">
+                <span>BPM: {project.bpm}</span>
+                <span>情绪: {project.mood}</span>
+                <span>能量: {project.energyLevel}</span>
+              </div>
+              {isBlocked && (
+                <div className="flex items-center gap-1 mt-1 text-xs text-error-600">
+                  <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+                  禁忌症冲突：{matched.join("、")}
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 已选 Tag 组 */}
+      {selectedProjects.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {selectedProjects.map((p) => (
+            <span
+              key={p.id}
+              className="inline-flex items-center gap-1 text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded-full"
+            >
+              {p.name}
+              <button
+                type="button"
+                onClick={() => onSelect(selectedProjects.filter((x) => x.id !== p.id))}
+                className="hover:text-error-500"
+                aria-label={`移除${p.name}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
           ))}
         </div>
       )}

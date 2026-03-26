@@ -6,9 +6,9 @@ export interface RegionSelectorProps {
 }
 
 const REGIONS = [
-  { id: "睡眠区", label: "睡眠区", icon: Moon, color: "text-indigo-600 bg-indigo-50 border-indigo-200 hover:bg-indigo-100" },
-  { id: "情志区", label: "情志区", icon: Heart, color: "text-rose-600 bg-rose-50 border-rose-200 hover:bg-rose-100" },
-  { id: "运动疗愈区", label: "运动疗愈区", icon: Footprints, color: "text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100" },
+  { id: "睡眠区", label: "睡眠区", icon: Moon, color: "text-primary-700 bg-primary-50 border-primary-200 hover:bg-primary-100" },
+  { id: "情志区", label: "情志区", icon: Heart, color: "text-primary-700 bg-primary-50 border-primary-200 hover:bg-primary-100" },
+  { id: "运动疗愈区", label: "运动疗愈区", icon: Footprints, color: "text-success-700 bg-success-50 border-success-200 hover:bg-success-100" },
 ] as const;
 
 export function RegionSelector({ onSelect }: RegionSelectorProps) {
@@ -22,7 +22,7 @@ export function RegionSelector({ onSelect }: RegionSelectorProps) {
         {REGIONS.map(({ id, label, icon: Icon, color }) => (
           <Card
             key={id}
-            className={`cursor-pointer border-2 transition-all ${color}`}
+            className={`cursor-pointer border-2 rounded-2xl transition-all ${color}`}
             onClick={() => onSelect(id)}
             role="button"
             tabIndex={0}
@@ -30,7 +30,7 @@ export function RegionSelector({ onSelect }: RegionSelectorProps) {
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onSelect(id); }}
           >
             <CardHeader className="items-center pb-1 pt-4">
-              <Icon className="h-8 w-8" />
+              <Icon className="h-10 w-10" />
             </CardHeader>
             <CardContent className="text-center pb-4">
               <CardTitle className="text-sm font-semibold">{label}</CardTitle>

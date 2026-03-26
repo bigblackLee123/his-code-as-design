@@ -80,9 +80,7 @@ export function RegionQueueBoard() {
                             value={item.patientName}
                             className="text-xs text-neutral-700"
                           />
-                          <span className="ml-auto text-xs text-neutral-400">
-                            {item.insuranceCardNo.slice(-4)}
-                          </span>
+                          <MaskedText type="insuranceCard" value={item.insuranceCardNo} className="ml-auto text-neutral-400" />
                         </div>
                       ))}
                     </div>

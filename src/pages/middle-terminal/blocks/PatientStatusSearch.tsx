@@ -1,12 +1,10 @@
-import { useState, useCallback, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MaskedText } from "@/components/his/MaskedText";
-import { patientService } from "@/services";
-import { supabase } from "@/services/supabase/client";
-import type { Patient, PatientStatus } from "@/services/types";
+import type { PatientStatus } from "@/services/types";
 import { Search, User } from "lucide-react";
+import { usePatientStatusSearch } from "./usePatientStatusSearch";
 
 const STATUS_MAP: Record<PatientStatus, { label: string; color: string }> = {
   "checked-in": { label: "已签到", color: "bg-neutral-100 text-neutral-600" },
@@ -18,63 +16,7 @@ const STATUS_MAP: Record<PatientStatus, { label: string; color: string }> = {
 };
 
 export function PatientStatusSearch() {
-  const [keyword, setKeyword] = useState("");
-  const [results, setResults] = useState<Patient[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const doSearch = useCallback(async (term: string) => {
-    if (!term.trim()) {
-      setResults([]);
-      setSearched(false);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
-      const data = await patientService.searchPatients(term);
-      setResults(data);
-      setSearched(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const handleChange = useCallback(
-    (val: string) => {
-      setKeyword(val);
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => doSearch(val), 300);
-    },
-    [doSearch]
-  );
-
-  // Realtime: 患者状态变更时自动刷新搜索结果
-  const keywordRef = useRef(keyword);
-  keywordRef.current = keyword;
-
-  useEffect(() => {
-    const useMock = import.meta.env.VITE_USE_MOCK === "true";
-    if (useMock) return;
-
-    const channel = supabase
-      .channel("patient-status-changes")
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "patients" },
-        () => {
-          if (keywordRef.current.trim()) {
-            doSearch(keywordRef.current);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [doSearch]);
+  const { keyword, results, loading, searched, handleChange } = usePatientStatusSearch();
 
   return (
     <Card className="rounded-lg shadow-sm">
@@ -115,9 +57,8 @@ export function PatientStatusSearch() {
                     {p.gender === "male" ? "男" : "女"} · {p.age}岁
                   </span>
                   <span className="text-xs text-neutral-300">|</span>
-                  <span className="text-xs text-neutral-500">
-                    卡号尾号 {p.insuranceCardNo.slice(-4)}
-                  </span>
+                  <span className="text-xs text-neutral-500">卡号：</span>
+                  <MaskedText type="insuranceCard" value={p.insuranceCardNo} className="text-neutral-500" />
                   <Badge variant="secondary" className={`ml-auto text-xs px-1.5 py-0 ${st.color}`}>
                     {st.label}
                   </Badge>

@@ -19,6 +19,7 @@ export function toQueueItem(
     patientId: row.patient_id,
     patientName: row.patients.name,
     insuranceCardNo: row.patients.insurance_card_no ?? "",
+    consultationId: row.consultation_id,
     queueNumber: row.queue_number,
     status: row.status,
     enqueuedAt: row.enqueued_at,
@@ -46,6 +47,8 @@ export function toTherapyProject(
     contraindications: Array.isArray(rawRow.contraindications)
       ? (rawRow.contraindications as string[])
       : [],
+    frequency: row.frequency ?? null,
+    frequencyBand: row.frequency_band ?? null,
   };
 }
 

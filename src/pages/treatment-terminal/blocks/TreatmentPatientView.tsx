@@ -36,7 +36,7 @@ export function TreatmentPatientView({ patient }: TreatmentPatientViewProps) {
       <div className="grid grid-cols-3 gap-1 text-xs leading-tight">
         <div className="flex items-center gap-1">
           <span className="text-neutral-500">医保卡号：</span>
-          <span className="font-mono text-neutral-700">{patient.insuranceCardNo}</span>
+          <MaskedText type="insuranceCard" value={patient.insuranceCardNo} />
         </div>
         <div className="flex items-center gap-1">
           <span className="text-neutral-500">身份证：</span>

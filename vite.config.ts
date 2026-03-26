@@ -4,9 +4,15 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+  base: "./",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  build: {
+    target: "es2022",
+    outDir: "dist",
+    assetsDir: "assets",
   },
 });

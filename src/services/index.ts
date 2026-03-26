@@ -9,6 +9,8 @@ export const {
   aiService,
   therapyService,
   symptomService,
+  treatmentQueueService,
+  consultationHelper,
 } = useMock
   ? await import("./mock")
   : await import("./supabase");

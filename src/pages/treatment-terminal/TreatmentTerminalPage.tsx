@@ -1,114 +1,46 @@
-import { useState, useCallback } from "react";
 import { RegionSelector } from "./blocks/RegionSelector";
 import { TreatmentQueue } from "./blocks/TreatmentQueue";
 import { TreatmentPatientView } from "./blocks/TreatmentPatientView";
 import { TreatmentAction } from "./blocks/TreatmentAction";
+import { TreatmentHeaderSlot } from "./blocks/TreatmentHeaderSlot";
+import { TreatmentStageHeader } from "./blocks/TreatmentStageHeader";
+import { FrequencyCard } from "./blocks/FrequencyCard";
+import { MoodCard } from "./blocks/MoodCard";
+import { SessionTimer } from "./blocks/SessionTimer";
+import { BPMSlider } from "./blocks/BPMSlider";
+import { SensorDataPanel } from "./blocks/SensorDataPanel";
+import { PulseOrb } from "./blocks/PulseOrb";
 import { TreatmentWarnings } from "./blocks/TreatmentWarnings";
+import { FinishActionBar } from "./blocks/FinishActionBar";
+import { GuidanceScriptCard } from "./blocks/GuidanceScriptCard";
+import { PatientInfoCard } from "@/pages/doctor-terminal/blocks/PatientInfoCard";
 import { RoomCompleteCheck } from "./blocks/RoomCompleteCheck";
 import { PostVitalSigns } from "./blocks/PostVitalSigns";
 import { PostScaleForm } from "./blocks/PostScaleForm";
 import { QueueComplete } from "./blocks/QueueComplete";
-import type { TreatmentPatient, TreatmentState, VitalSigns, ScaleResult, RoomCheckIn, PrescriptionStep } from "@/services/types";
+import { useTreatmentFlow } from "./blocks/useTreatmentFlow";
 import { Syringe, MapPin } from "lucide-react";
 
-type PageStatus =
-  | "region-select"
-  | "idle"
-  | "checked-in"
-  | "treating"
-  | "room-completing"
-  | "post-vitals"
-  | "post-scale"
-  | "completing";
-
-const INITIAL_TREATMENT: TreatmentState = { status: "idle", startTime: null, endTime: null };
-
 export function TreatmentTerminalPage() {
-  const [region, setRegion] = useState<string | null>(null);
-  const [pageStatus, setPageStatus] = useState<PageStatus>("region-select");
-  const [currentPatient, setCurrentPatient] = useState<TreatmentPatient | null>(null);
-  const [consultationId, setConsultationId] = useState<string | null>(null);
-  const [treatmentState, setTreatmentState] = useState<TreatmentState>(INITIAL_TREATMENT);
-  const [postVitals, setPostVitals] = useState<VitalSigns | null>(null);
-  const [postScaleResult, setPostScaleResult] = useState<ScaleResult | null>(null);
-  const [_roomSteps, setRoomSteps] = useState<PrescriptionStep[]>([]);
+  const {
+    region,
+    pageStatus,
+    currentPatient,
+    consultationId,
+    treatmentState,
+    postVitals,
+    postScaleResult,
+    handleRegionSelect,
+    handleCheckIn,
+    handleStart,
+    handleEnd,
+    handleAllDone,
+    handleNextPatient,
+    handlePostVitalsSave,
+    handlePostScaleSubmit,
+    handleComplete,
+  } = useTreatmentFlow();
 
-  const handleRegionSelect = useCallback((r: string) => {
-    setRegion(r);
-    setPageStatus("idle");
-  }, []);
-
-  const handleCheckIn = useCallback((checkIn: RoomCheckIn, cId: string) => {
-    setConsultationId(cId);
-    setCurrentPatient({
-      ...checkIn.patient,
-      vitalSigns: { systolicBP: 0, diastolicBP: 0, heartRate: 0, recordedAt: "", recordedBy: "" },
-      contraindications: [],
-      projects: checkIn.stepsInThisRoom.map((s) => ({
-        id: s.projectId,
-        region: s.region,
-        name: s.projectName,
-        mechanism: "",
-        guidanceScript: null,
-        bpm: null,
-        mood: "",
-        energyLevel: "",
-        hasGuidance: false,
-        hasScenario: false,
-        targetAudience: "",
-        contraindications: [],
-      })),
-    });
-    setRoomSteps(checkIn.stepsInThisRoom);
-    setTreatmentState(INITIAL_TREATMENT);
-    setPostVitals(null);
-    setPostScaleResult(null);
-    setPageStatus("checked-in");
-  }, []);
-
-  const handleStart = useCallback(() => {
-    setTreatmentState({ status: "treating", startTime: new Date(), endTime: null });
-    setPageStatus("treating");
-  }, []);
-
-  const handleEnd = useCallback(() => {
-    setTreatmentState((prev) => ({ ...prev, status: "post-vitals", endTime: new Date() }));
-    setPageStatus("room-completing");
-  }, []);
-
-  const handleAllDone = useCallback(() => {
-    setPageStatus("post-vitals");
-  }, []);
-
-  const handleNextPatient = useCallback(() => {
-    setCurrentPatient(null);
-    setConsultationId(null);
-    setRoomSteps([]);
-    setTreatmentState(INITIAL_TREATMENT);
-    setPageStatus("idle");
-  }, []);
-
-  const handlePostVitalsSave = useCallback((vitals: VitalSigns) => {
-    setPostVitals(vitals);
-    setPageStatus("post-scale");
-  }, []);
-
-  const handlePostScaleSubmit = useCallback((results: ScaleResult) => {
-    setPostScaleResult(results);
-    setPageStatus("completing");
-  }, []);
-
-  const handleComplete = useCallback(() => {
-    setCurrentPatient(null);
-    setConsultationId(null);
-    setRoomSteps([]);
-    setTreatmentState(INITIAL_TREATMENT);
-    setPostVitals(null);
-    setPostScaleResult(null);
-    setPageStatus("idle");
-  }, []);
-
-  // Region select screen
   if (pageStatus === "region-select" || !region) {
     return (
       <div className="flex h-full bg-neutral-50">
@@ -117,8 +49,79 @@ export function TreatmentTerminalPage() {
     );
   }
 
+  const isStaticZone = region === "睡眠区" || region === "情志区";
+  const isTreating = pageStatus === "treating";
+  const firstProject = currentPatient?.projects[0] ?? null;
+
+  // treating 时：跟医生终端 plan 步骤一样的 grid 布局
+  if (isTreating && currentPatient && firstProject) {
+    return (
+      <>
+        <TreatmentHeaderSlot region={region} patient={currentPatient} />
+        <div className="flex flex-col h-full gap-2 p-3 overflow-hidden">
+          {/* 标题行 */}
+          <TreatmentStageHeader
+            title={`${region}控制面板`}
+            status="running"
+          />
+          {/* grid：左右两栏 */}
+          <div className="grid flex-1 grid-cols-[1fr_20rem] grid-rows-[auto_auto_1fr] gap-3 min-h-0">
+            {/* R1 左：静区=提词器，动区=BPM 大面板 */}
+            {isStaticZone ? (
+              <GuidanceScriptCard script={firstProject.guidanceScript} projectName={firstProject.name} />
+            ) : (
+              <BPMSlider
+                initialBpm={firstProject.bpm ?? 80}
+                projectName={firstProject.name}
+                mechanism={firstProject.mechanism}
+                targetAudience={firstProject.targetAudience}
+              />
+            )}
+            {/* R1 右：PatientInfoCard */}
+            <PatientInfoCard patient={currentPatient} />
+
+            {/* R2 左：脉冲圆 | R2 右：静区=FrequencyCard+MoodCard，动区=SensorDataPanel */}
+            <PulseOrb active projectName={firstProject.name} bpm={firstProject.bpm} />
+            {isStaticZone ? (
+              <div className="flex flex-col gap-3">
+                <FrequencyCard
+                  frequency={firstProject.frequency}
+                  frequencyBand={firstProject.frequencyBand}
+                  bpm={firstProject.bpm}
+                  mechanism={firstProject.mechanism}
+                />
+                <MoodCard mood={firstProject.mood} energyLevel={firstProject.energyLevel} />
+              </div>
+            ) : (
+              <SensorDataPanel />
+            )}
+
+            {/* R3 左：警告 | R3 右：SessionTimer + 结束按钮 */}
+            <div className="overflow-y-auto min-h-0">
+              <TreatmentWarnings onEmergencyStop={handleEnd} />
+            </div>
+            <div className="flex flex-col gap-3 h-full">
+              <div className="flex-1">
+                <SessionTimer startTime={treatmentState.startTime} running className="h-full" />
+              </div>
+              <div className="flex-1">
+                <FinishActionBar
+                  label="疗程结束，生成评估报告"
+                  variant="primary"
+                  onFinish={handleEnd}
+                  className="h-full"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // 非 treating 状态：左队列 + 右工作区
   return (
-    <div className="flex h-full bg-neutral-50 gap-2 p-2">
+    <div className="flex h-full gap-2 p-2">
       <div className="w-64 shrink-0 flex flex-col gap-2">
         <div className="flex items-center gap-1 px-1">
           <MapPin className="h-3 w-3 text-primary-500" />
@@ -131,18 +134,19 @@ export function TreatmentTerminalPage() {
         />
       </div>
 
-      <div className="flex-1 flex flex-col gap-1 overflow-auto">
+      <div className="flex-1 flex flex-col gap-2 overflow-auto">
         {currentPatient ? (
           <>
-            <TreatmentPatientView patient={currentPatient} />
-            {(pageStatus === "checked-in" || pageStatus === "treating") && (
-              <TreatmentAction
-                state={treatmentState}
-                onStart={handleStart}
-                onEnd={handleEnd}
-              />
+            {pageStatus === "checked-in" && (
+              <>
+                <TreatmentPatientView patient={currentPatient} />
+                <TreatmentAction
+                  state={treatmentState}
+                  onStart={handleStart}
+                  onEnd={handleEnd}
+                />
+              </>
             )}
-            {pageStatus === "treating" && <TreatmentWarnings />}
             {pageStatus === "room-completing" && consultationId && region && (
               <RoomCompleteCheck
                 consultationId={consultationId}

@@ -56,7 +56,7 @@ export function SymptomInput({ value, onChange }: SymptomInputProps) {
             value={keyword}
             onChange={handleInputChange}
             onFocus={() => { if (results.length > 0) setIsOpen(true); }}
-            className="pl-7 text-xs leading-tight h-7"
+            className="pl-7 text-xs leading-tight h-7 rounded-xl"
             aria-label="症状搜索"
             autoComplete="off"
             autoCorrect="off"

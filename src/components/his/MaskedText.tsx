@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 export interface MaskedTextProps {
   /** 脱敏类型 */
-  type: "name" | "idNumber" | "phone";
+  type: "name" | "idNumber" | "phone" | "insuranceCard";
   /** 原始值 */
   value: string;
   /** 是否显示原始值（需权限控制） */
@@ -48,6 +48,10 @@ function maskValue(type: MaskedTextProps["type"], value: string): string {
       );
     case "phone":
       return value.slice(0, 3) + "****" + value.slice(-4);
+    case "insuranceCard":
+      return value.length > 4
+        ? "*".repeat(value.length - 4) + value.slice(-4)
+        : value;
     default:
       return value;
   }

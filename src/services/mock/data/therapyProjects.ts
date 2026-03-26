@@ -20,6 +20,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "严重抑郁患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: "7.83Hz",
+    frequencyBand: "舒曼波/Alpha波段",
   },
   {
     id: "e0000000-0000-0000-0000-000000000002",
@@ -34,6 +36,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000003",
@@ -48,6 +52,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000004",
@@ -62,6 +68,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000005",
@@ -76,6 +84,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000006",
@@ -90,6 +100,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000007",
@@ -104,6 +116,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000008",
@@ -118,6 +132,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "严重抑郁患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000009",
@@ -132,6 +148,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-00000000000a",
@@ -146,6 +164,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-00000000000b",
@@ -160,6 +180,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-00000000000c",
@@ -174,6 +196,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-00000000000d",
@@ -188,6 +212,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["听力损失", "耳鸣", "急性精神病状态", "严重心律失常", "身体疼痛/疾病", "创伤患者"],
+    frequency: null,
+    frequencyBand: null,
   },
   // ── 情志区（20 项） ──
   {
@@ -203,6 +229,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-00000000000f",
@@ -217,6 +245,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000010",
@@ -231,6 +261,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000011",
@@ -245,6 +277,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000012",
@@ -259,6 +293,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: "8-12Hz",
+    frequencyBand: "Alpha波",
   },
   {
     id: "e0000000-0000-0000-0000-000000000013",
@@ -273,6 +309,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["精神分裂症患者", "创伤后应激障碍", "物质滥用患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000014",
@@ -287,6 +325,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["精神分裂症患者", "创伤后应激障碍", "物质滥用患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000015",
@@ -301,6 +341,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000016",
@@ -315,6 +357,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: "8-12Hz",
+    frequencyBand: "Alpha波",
   },
   {
     id: "e0000000-0000-0000-0000-000000000017",
@@ -329,6 +373,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000018",
@@ -343,6 +389,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000019",
@@ -357,6 +405,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-00000000001a",
@@ -371,6 +421,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-00000000001b",
@@ -385,6 +437,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["精神分裂症患者", "物质滥用患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-00000000001c",
@@ -399,6 +453,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-00000000001d",
@@ -413,6 +469,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["严重精神病性障碍患者", "严重抑郁患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: "8-12Hz",
+    frequencyBand: "Alpha波",
   },
   {
     id: "e0000000-0000-0000-0000-00000000001e",
@@ -427,6 +485,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["严重精神病性障碍患者", "严重抑郁患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: "4-8Hz",
+    frequencyBand: "Theta波",
   },
   {
     id: "e0000000-0000-0000-0000-00000000001f",
@@ -441,6 +501,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["精神分裂症患者", "物质滥用患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000020",
@@ -455,6 +517,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: true,
     targetAudience: "18岁以上",
     contraindications: ["创伤后应激障碍", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000021",
@@ -469,6 +533,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "18岁以上",
     contraindications: ["精神分裂症患者", "物质滥用患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: "432Hz",
+    frequencyBand: "自然共振",
   },
   // ── 运动疗愈区（3 项） ──
   {
@@ -484,6 +550,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "50岁以上，帕金森病患者",
     contraindications: ["癫痫患者", "精神分裂症患者", "心血管疾病患者", "物质滥用患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000023",
@@ -498,6 +566,8 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "60岁以上",
     contraindications: ["癫痫患者", "精神分裂症患者", "物质滥用患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
   {
     id: "e0000000-0000-0000-0000-000000000024",
@@ -512,5 +582,7 @@ export const mockTherapyProjects: TherapyProject[] = [
     hasScenario: false,
     targetAudience: "60岁以上",
     contraindications: ["癫痫患者", "精神分裂症患者", "物质滥用患者", "听力损失", "耳鸣", "急性精神病状态", "严重心律失常"],
+    frequency: null,
+    frequencyBand: null,
   },
 ];

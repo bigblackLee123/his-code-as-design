@@ -1,9 +1,19 @@
-import { Button } from "@/components/ui/button";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { MaskedText } from "@/components/his/MaskedText";
 import { useQueueComplete } from "./useQueueComplete";
 import type { TreatmentPatient, TreatmentState, VitalSigns, ScaleResult } from "@/services/types";
-import { CheckCircle, AlertTriangle, RotateCcw, Timer } from "lucide-react";
+import {
+  CheckCircle,
+  AlertTriangle,
+  RotateCcw,
+  ListMusic,
+  Timer,
+  HeartPulse,
+  Send,
+  Check,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface QueueCompleteProps {
   patient: TreatmentPatient;
@@ -13,144 +23,154 @@ export interface QueueCompleteProps {
   onComplete: () => void;
 }
 
-/** Format duration in seconds to a human-readable string (e.g. "12分30秒") */
 function formatDuration(startTime: Date | null, endTime: Date | null): string {
   if (!startTime || !endTime) return "--";
-  const totalSeconds = Math.max(0, Math.floor((endTime.getTime() - startTime.getTime()) / 1000));
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  if (minutes === 0) return `${seconds}秒`;
-  return `${minutes}分${seconds}秒`;
+  const s = Math.max(0, Math.floor((endTime.getTime() - startTime.getTime()) / 1000));
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m === 0 ? `${sec}秒` : `${m}分${sec}秒`;
 }
 
 export function QueueComplete({ patient, treatmentState, postVitals, postScaleResult, onComplete }: QueueCompleteProps) {
   const { state, errorMsg, confirm } = useQueueComplete(patient.id);
+  const [btnPhase, setBtnPhase] = useState<"idle" | "shrink" | "check" | "done">("idle");
 
   const handleConfirm = async () => {
+    setBtnPhase("shrink");
     await confirm(postVitals ?? undefined, postScaleResult ?? undefined);
+    setTimeout(() => setBtnPhase("check"), 300);
+    setTimeout(() => setBtnPhase("done"), 900);
   };
+
+  // 成功态
+  if (state === "success" || btnPhase === "done") {
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="rounded-full bg-success-100 p-4">
+            <CheckCircle className="h-10 w-10 text-success-500" />
+          </div>
+          <span className="text-sm font-bold text-success-700">出队成功</span>
+          <span className="text-xs text-neutral-500">患者治疗已完成，可接诊下一位</span>
+          <button
+            type="button"
+            onClick={onComplete}
+            className="flex items-center gap-1 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm px-6 py-3 mt-4 transition-colors"
+          >
+            返回治疗队列
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 错误态
+  if (state === "error") {
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="rounded-full bg-error-100 p-4">
+            <AlertTriangle className="h-10 w-10 text-error-500" />
+          </div>
+          <span className="text-sm font-bold text-error-700">出队失败</span>
+          <span className="text-xs text-neutral-500">{errorMsg}</span>
+          <button
+            type="button"
+            onClick={() => { setBtnPhase("idle"); handleConfirm(); }}
+            className="flex items-center gap-1 rounded-full bg-error-50 px-4 py-2 text-xs font-medium text-error-700 hover:bg-error-100 transition-colors"
+          >
+            <RotateCcw className="h-3 w-3" />
+            重试
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const preVitals = patient.vitalSigns;
 
-  // Success view
-  if (state === "success") {
-    return (
-      <div className="flex flex-col gap-2 rounded-md border border-neutral-200 p-2">
-        <Alert>
-          <CheckCircle className="h-4 w-4 text-success-500" />
-          <AlertTitle className="text-xs font-medium text-success-700">出队成功</AlertTitle>
-          <AlertDescription className="text-xs text-neutral-600">
-            患者治疗已完成，可叫号接诊下一位患者。
-          </AlertDescription>
-        </Alert>
-        <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={onComplete} aria-label="完成出队">
-            <CheckCircle className="h-3 w-3" />
-            <span>完成</span>
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Error view
-  if (state === "error") {
-    return (
-      <div className="flex flex-col gap-2 rounded-md border border-neutral-200 p-2">
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle className="text-xs font-medium">出队失败</AlertTitle>
-          <AlertDescription className="text-xs">{errorMsg}</AlertDescription>
-        </Alert>
-        <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={handleConfirm} aria-label="重试出队">
-            <RotateCcw className="h-3 w-3" />
-            <span>重试</span>
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Confirm view (default)
+  // 确认态：跟 ConfirmTransition 一样的全屏居中卡片
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-neutral-200 p-2">
-      <div className="flex items-center gap-1">
-        <CheckCircle className="h-4 w-4 text-primary-500" aria-hidden="true" />
-        <span className="text-xs font-medium text-neutral-800 leading-tight">出队确认</span>
-      </div>
+    <div className="flex h-full items-center justify-center p-6">
+      <div className="flex flex-col items-center gap-6 w-full max-w-lg">
+        {/* 患者信息 */}
+        <div className="w-full rounded-xl border border-primary-200 bg-primary-50/50 p-4 flex items-center gap-2">
+          <MaskedText type="name" value={patient.name} className="text-sm font-semibold text-neutral-800" />
+          <Badge variant="outline" className="text-xs px-1.5 py-0 text-primary-600 border-primary-200 bg-primary-50">
+            {patient.gender === "male" ? "男" : "女"} · {patient.age}岁
+          </Badge>
+        </div>
 
-      {/* Patient summary */}
-      <div className="flex flex-col gap-1 rounded-md bg-neutral-50 p-2">
-        <span className="text-xs font-medium text-neutral-600 leading-tight">患者信息</span>
-        <div className="grid grid-cols-2 gap-1 text-xs leading-tight">
-          <div className="flex gap-1">
-            <span className="text-neutral-500">姓名：</span>
-            <MaskedText type="name" value={patient.name} />
+        {/* 疗愈项目 */}
+        <div className="w-full rounded-xl border border-secondary-200 bg-secondary-50/50 p-4 flex flex-col gap-2">
+          <div className="flex items-center gap-1">
+            <ListMusic className="h-4 w-4 text-secondary-500" />
+            <span className="text-xs font-medium text-neutral-800 leading-tight">
+              已完成 {patient.projects.length} 个疗愈项目
+            </span>
           </div>
-          <div className="flex gap-1">
-            <span className="text-neutral-500">性别：</span>
-            <span className="text-neutral-700">{patient.gender === "male" ? "男" : "女"}</span>
+          <div className="flex flex-wrap gap-1">
+            {patient.projects.map((p) => (
+              <Badge key={p.id} className="text-xs px-2 py-0.5 bg-secondary-50 text-secondary-700 border-secondary-200">
+                {p.name}
+              </Badge>
+            ))}
           </div>
         </div>
-      </div>
 
-      {/* Treatment duration */}
-      <div className="flex flex-col gap-1 rounded-md bg-neutral-50 p-2">
-        <span className="text-xs font-medium text-neutral-600 leading-tight">治疗时长</span>
-        <div className="flex items-center gap-1 text-xs leading-tight">
-          <Timer className="h-3 w-3 text-primary-500" aria-hidden="true" />
-          <span className="font-mono font-medium text-neutral-800">
-            {formatDuration(treatmentState.startTime, treatmentState.endTime)}
-          </span>
+        {/* 治疗时长 + 生理数据对比 横排 */}
+        <div className="w-full grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-primary-200 bg-primary-50/50 p-3 flex flex-col gap-1">
+            <div className="flex items-center gap-1">
+              <Timer className="h-4 w-4 text-primary-500" />
+              <span className="text-xs font-medium text-neutral-800 leading-tight">治疗时长</span>
+            </div>
+            <span className="text-lg font-bold text-primary-700 leading-none">
+              {formatDuration(treatmentState.startTime, treatmentState.endTime)}
+            </span>
+          </div>
+          <div className="rounded-xl border border-success-200 bg-success-50/50 p-3 flex flex-col gap-1">
+            <div className="flex items-center gap-1">
+              <HeartPulse className="h-4 w-4 text-success-500" />
+              <span className="text-xs font-medium text-neutral-800 leading-tight">生理数据</span>
+            </div>
+            {postVitals ? (
+              <div className="flex flex-col gap-0.5 text-xs leading-tight">
+                <span className="text-neutral-600">
+                  心率 {preVitals.heartRate} → {postVitals.heartRate}
+                </span>
+                <span className="text-neutral-600">
+                  血压 {preVitals.systolicBP}/{preVitals.diastolicBP} → {postVitals.systolicBP}/{postVitals.diastolicBP}
+                </span>
+              </div>
+            ) : (
+              <span className="text-xs text-neutral-400">未录入</span>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Vital signs comparison */}
-      <div className="flex flex-col gap-1 rounded-md bg-neutral-50 p-2">
-        <span className="text-xs font-medium text-neutral-600 leading-tight">
-          生理数据对比
-        </span>
-        <div className="grid grid-cols-4 gap-1 text-xs leading-tight">
-          <span className="text-neutral-400">指标</span>
-          <span className="text-neutral-400">治疗前</span>
-          <span className="text-neutral-400">治疗后</span>
-          <span className="text-neutral-400">变化</span>
-
-          <span className="text-neutral-600">收缩压</span>
-          <span className="font-mono text-neutral-700">{preVitals.systolicBP} mmHg</span>
-          <span className="font-mono text-neutral-700">{postVitals?.systolicBP ? `${postVitals.systolicBP} mmHg` : "--"}</span>
-          <span className="font-mono text-neutral-500">{postVitals?.systolicBP ? `${postVitals.systolicBP - preVitals.systolicBP}` : "--"}</span>
-
-          <span className="text-neutral-600">舒张压</span>
-          <span className="font-mono text-neutral-700">{preVitals.diastolicBP} mmHg</span>
-          <span className="font-mono text-neutral-700">{postVitals?.diastolicBP ? `${postVitals.diastolicBP} mmHg` : "--"}</span>
-          <span className="font-mono text-neutral-500">{postVitals?.diastolicBP ? `${postVitals.diastolicBP - preVitals.diastolicBP}` : "--"}</span>
-
-          <span className="text-neutral-600">心率</span>
-          <span className="font-mono text-neutral-700">{preVitals.heartRate} 次/分</span>
-          <span className="font-mono text-neutral-700">{postVitals?.heartRate ? `${postVitals.heartRate} 次/分` : "--"}</span>
-          <span className="font-mono text-neutral-500">{postVitals?.heartRate ? `${postVitals.heartRate - preVitals.heartRate}` : "--"}</span>
-        </div>
-      </div>
-
-      <div className="flex justify-end">
-        <Button
-          variant="default"
-          size="sm"
+        {/* 确认按钮 */}
+        <button
+          type="button"
+          disabled={btnPhase !== "idle" || state === "loading"}
           onClick={handleConfirm}
-          disabled={state === "loading"}
+          className={cn(
+            "flex items-center justify-center gap-2 text-sm font-medium text-white transition-all duration-300 mt-2",
+            btnPhase === "idle" && "rounded-xl bg-primary-600 hover:bg-primary-700 px-8 py-4",
+            btnPhase === "shrink" && "rounded-full bg-primary-600 w-12 h-12 px-0 py-0",
+            btnPhase === "check" && "rounded-full bg-success-500 w-12 h-12 px-0 py-0",
+          )}
           aria-label="确认出队"
         >
-          {state === "loading" ? (
-            <span className="text-xs">出队中…</span>
-          ) : (
+          {btnPhase === "idle" && (
             <>
-              <CheckCircle className="h-3 w-3" />
-              <span>确认出队</span>
+              <Send className="h-4 w-4" />
+              确认出队
             </>
           )}
-        </Button>
+          {btnPhase === "shrink" && <span className="opacity-0">·</span>}
+          {btnPhase === "check" && <Check className="h-5 w-5 animate-bounce" />}
+        </button>
       </div>
     </div>
   );

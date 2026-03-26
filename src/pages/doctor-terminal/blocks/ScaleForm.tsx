@@ -24,7 +24,7 @@ export function ScaleForm({ patientId, onSubmit }: ScaleFormProps) {
 
       {!s.submitted && (
         <Select value={s.selectedTemplateId} onValueChange={(v) => s.setSelectedTemplateId(v ?? "")}>
-          <SelectTrigger size="sm" className="text-xs leading-tight h-7 w-full data-[state=open]:ring-0 data-[state=open]:border-input">
+          <SelectTrigger size="sm" className="text-xs leading-tight h-7 w-full !rounded-xl data-[state=open]:ring-0 data-[state=open]:border-input">
             <SelectValue placeholder="请选择量表模板" />
           </SelectTrigger>
           <SelectContent side="bottom" sideOffset={4} align="start" alignItemWithTrigger={false}>
@@ -36,7 +36,7 @@ export function ScaleForm({ patientId, onSubmit }: ScaleFormProps) {
       )}
 
       {s.submitted && (
-        <div className="flex items-center justify-between rounded-md bg-success-50 border border-success-200 p-2">
+        <div className="flex items-center justify-between rounded-xl bg-success-50 border border-success-200 p-2">
           <div className="flex items-center gap-1 text-xs text-success-700 leading-tight">
             <CheckCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
             <span>
@@ -55,7 +55,7 @@ export function ScaleForm({ patientId, onSubmit }: ScaleFormProps) {
       {s.isLoading && <span className="text-xs text-neutral-400 leading-tight">加载中…</span>}
 
       {s.currentTemplate && !s.isLoading && !s.submitted && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 rounded-xl border border-primary-200 bg-primary-50/30 p-3">
           <p className="text-xs text-neutral-500 leading-tight">{s.currentTemplate.description}</p>
           <div className="flex flex-col gap-1">
             {s.currentTemplate.questions.map((q) => (

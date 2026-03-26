@@ -1,5 +1,5 @@
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, Square } from "lucide-react";
 
 const WARNINGS = [
   "患者出现头晕、恶心",
@@ -8,23 +8,39 @@ const WARNINGS = [
   "患者主动要求停止",
 ];
 
-export function TreatmentWarnings() {
+export interface TreatmentWarningsProps {
+  onEmergencyStop?: () => void;
+}
+
+export function TreatmentWarnings({ onEmergencyStop }: TreatmentWarningsProps) {
   return (
-    <Alert className="bg-warning-50 border-warning-200">
-      <AlertTriangle className="h-4 w-4 text-warning-600" />
-      <AlertTitle className="text-xs font-medium text-warning-700">
-        出现以下症状时需立即停止治疗
-      </AlertTitle>
-      <AlertDescription>
-        <ul className="mt-1 flex flex-col gap-0.5">
-          {WARNINGS.map((w) => (
-            <li key={w} className="text-xs leading-tight text-warning-600 flex items-start gap-1">
-              <span className="shrink-0">•</span>
-              <span>{w}</span>
-            </li>
-          ))}
-        </ul>
-      </AlertDescription>
-    </Alert>
+    <div className="rounded-xl bg-warning-50 border border-warning-300 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <AlertTriangle className="h-5 w-5 text-warning-500 shrink-0" aria-hidden="true" />
+        <span className="text-xs font-bold text-error-600 leading-tight">
+          出现以下症状时需立即停止治疗
+        </span>
+      </div>
+      <ul className="flex flex-col gap-0.5 mb-3">
+        {WARNINGS.map((w) => (
+          <li key={w} className="text-xs leading-tight text-warning-700 flex items-start gap-1">
+            <span className="shrink-0">•</span>
+            <span>{w}</span>
+          </li>
+        ))}
+      </ul>
+      {onEmergencyStop && (
+        <Button
+          variant="destructive"
+          size="lg"
+          onClick={onEmergencyStop}
+          className="w-full bg-error-600 hover:bg-error-700 text-white font-bold rounded-xl py-3"
+          aria-label="紧急停止并生成不良事件报告"
+        >
+          <Square className="h-4 w-4" />
+          紧急停止并生成不良事件报告
+        </Button>
+      )}
+    </div>
   );
 }

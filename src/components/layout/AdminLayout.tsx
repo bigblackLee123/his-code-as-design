@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
+import { HeaderSlotProvider } from "./HeaderSlotContext";
 
 export interface AdminLayoutProps {
   /** 当前登录医生姓名 */
@@ -19,12 +20,16 @@ export function AdminLayout({
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen bg-neutral-50">
-      <Sidebar collapsed={collapsed} onCollapsedChange={setCollapsed} />
-      <div className="flex flex-1 flex-col overflow-hidden">
+    <HeaderSlotProvider>
+      <div className="flex h-screen flex-col bg-neutral-50">
         <Header doctorName={doctorName} department={department} />
-        <main className="flex-1 overflow-auto p-4">{children}</main>
+        <div className="flex flex-1 overflow-hidden p-6 gap-6">
+          <Sidebar collapsed={collapsed} onCollapsedChange={setCollapsed} />
+          <main className="flex-1 overflow-auto">
+            <div className="rounded-2xl bg-white shadow-sm border border-neutral-200 p-6 min-h-full">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
+    </HeaderSlotProvider>
   );
 }

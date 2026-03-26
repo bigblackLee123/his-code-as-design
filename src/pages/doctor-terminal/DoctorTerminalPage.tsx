@@ -1,15 +1,18 @@
 import { useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import { CallQueue } from "./blocks/CallQueue";
-import { PatientInfoBar } from "./blocks/PatientInfoBar";
+import { DoctorQueueHeaderSlot } from "./blocks/DoctorQueueHeaderSlot";
+import { PatientInfoCard } from "./blocks/PatientInfoCard";
+import { SidebarSummary } from "./blocks/SidebarSummary";
 import { ContraindicationInput } from "./blocks/ContraindicationInput";
 import { SymptomInput } from "./blocks/SymptomInput";
 import { ScaleForm } from "./blocks/ScaleForm";
 import { AISuggestionPanel } from "./blocks/AISuggestionPanel";
 import { TherapyProjectSelector } from "./blocks/TherapyProjectSelector";
-import { TherapyProjectList } from "./blocks/TherapyProjectList";
-import { StatusTransition } from "./blocks/StatusTransition";
+import { ConfirmTransition } from "./blocks/ConfirmTransition";
 import { useMockInit } from "./blocks/useMockInit";
 import { PatientHistory } from "./blocks/PatientHistory";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 import type {
   Patient,
   ConsultationData,
@@ -20,8 +23,11 @@ import type {
   TherapyProject,
 } from "@/services/types";
 
+type Step = "collect" | "plan" | "confirm";
+
 export function DoctorTerminalPage() {
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
+  const [step, setStep] = useState<Step>("collect");
   const [consultationData, setConsultationData] = useState<ConsultationData>({
     contraindications: [],
     symptoms: [],
@@ -29,12 +35,11 @@ export function DoctorTerminalPage() {
     aiSuggestion: null,
   });
   const [selectedProjects, setSelectedProjects] = useState<TherapyProject[]>([]);
-  const [showTransition, setShowTransition] = useState(false);
 
-  // Mock 模式：自动加载预填数据
   useMockInit(
     useCallback((p: Patient) => {
       setCurrentPatient(p);
+      setStep("collect");
       setConsultationData({ contraindications: [], symptoms: [], scaleResults: null, aiSuggestion: null });
     }, []),
     useCallback((projects: TherapyProject[]) => {
@@ -44,9 +49,9 @@ export function DoctorTerminalPage() {
 
   const handlePatientCalled = useCallback((patient: Patient) => {
     setCurrentPatient(patient);
+    setStep("collect");
     setConsultationData({ contraindications: [], symptoms: [], scaleResults: null, aiSuggestion: null });
     setSelectedProjects([]);
-    setShowTransition(false);
   }, []);
 
   const handleContraindicationChange = useCallback((items: Contraindication[]) => {
@@ -72,76 +77,126 @@ export function DoctorTerminalPage() {
 
   const handleConfirmPrescription = useCallback(() => {
     if (selectedProjects.length > 0) {
-      setShowTransition(true);
+      setStep("confirm");
     }
   }, [selectedProjects]);
 
   const handleTransitionComplete = useCallback(() => {
     setCurrentPatient(null);
+    setStep("collect");
     setConsultationData({ contraindications: [], symptoms: [], scaleResults: null, aiSuggestion: null });
     setSelectedProjects([]);
-    setShowTransition(false);
   }, []);
 
   return (
-    <div className="flex h-full bg-neutral-50 gap-2 p-2">
-      {/* Left: Call queue panel */}
-      <div className="w-80 shrink-0">
-        <CallQueue onPatientCalled={handlePatientCalled} disabled={!!currentPatient} />
-      </div>
+    <>
+      {/* 已接诊时：候诊队列注入 Header slot */}
+      {currentPatient && (
+        <DoctorQueueHeaderSlot onPatientCalled={handlePatientCalled} disabled={!!currentPatient} />
+      )}
 
-      {/* Right: Consultation work area */}
-      <div className="flex-1 flex flex-col gap-2">
-        {currentPatient ? (
-          <>
-            <PatientInfoBar patient={currentPatient} />
-            <PatientHistory patientId={currentPatient.id} />
+      {currentPatient ? (
+        step === "collect" ? (
+          /* ── collect：3 行 grid，逐行左右对齐 ── */
+          <div className="grid h-full grid-cols-[1fr_20rem] grid-rows-[auto_auto_1fr] gap-3 p-3">
+            {/* R1 左：禁忌症 */}
             <ContraindicationInput
               patientId={currentPatient.id}
               onItemsChange={handleContraindicationChange}
             />
-            <SymptomInput
-              value={consultationData.symptoms}
-              onChange={handleSymptomChange}
-            />
-            <ScaleForm patientId={currentPatient.id} onSubmit={handleScaleSubmit} />
-            <AISuggestionPanel
-              patient={currentPatient}
-              consultationData={consultationData}
-              onAdopt={handleAdoptSuggestion}
-            />
-            <TherapyProjectSelector
-              selectedProjects={selectedProjects}
-              patientContraindications={consultationData.contraindications}
-              onSelect={handleSelectProjects}
-            />
-            <TherapyProjectList selectedProjects={selectedProjects} />
-            {selectedProjects.length > 0 && !showTransition && (
-              <div className="flex justify-end">
-                <button
-                  type="button"
+            {/* R1 右：患者信息卡 */}
+            <PatientInfoCard patient={currentPatient} />
+
+            {/* R2 左：症状 + 量表（等高对齐） */}
+            <div className="flex flex-col gap-3">
+              <SymptomInput
+                value={consultationData.symptoms}
+                onChange={handleSymptomChange}
+              />
+              <ScaleForm patientId={currentPatient.id} onSubmit={handleScaleSubmit} />
+            </div>
+            {/* R2 右：历史记录 + 按钮（等高对齐） */}
+            <div className="flex flex-col gap-3">
+              <PatientHistory patientId={currentPatient.id} />
+              <Button
+                onClick={() => setStep("plan")}
+                disabled={!consultationData.scaleResults}
+                className="w-full rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm py-6 disabled:opacity-50"
+              >
+                下一步：方案制定
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* R3：溢出空间 */}
+            <div />
+            <div />
+          </div>
+        ) : step === "plan" ? (
+          /* ── plan：返回按钮 + 2 行 grid ── */
+          <div className="flex flex-col h-full gap-2 p-3 overflow-hidden">
+            {/* 返回按钮：独立于 grid 之上 */}
+            <button
+              type="button"
+              onClick={() => setStep("collect")}
+              className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 transition-colors self-start"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              返回信息采集
+            </button>
+
+            <div className="grid flex-1 grid-cols-[1fr_20rem] grid-rows-[auto_1fr] gap-3 min-h-0">
+              {/* R1 左：AI 面板 */}
+              <AISuggestionPanel
+                patient={currentPatient}
+                consultationData={consultationData}
+                onAdopt={handleAdoptSuggestion}
+              />
+              {/* R1 右：患者信息卡 */}
+              <PatientInfoCard patient={currentPatient} />
+
+              {/* R2 左：项目选择 */}
+              <div className="flex flex-col gap-5 overflow-y-auto min-h-0">
+                <TherapyProjectSelector
+                  selectedProjects={selectedProjects}
+                  patientContraindications={consultationData.contraindications}
+                  onSelect={handleSelectProjects}
+                />
+              </div>
+              {/* R2 右：摘要 + 流转按钮 */}
+              <div className="flex flex-col gap-3">
+                <SidebarSummary
+                  contraindications={consultationData.contraindications}
+                  scaleResults={consultationData.scaleResults}
+                  selectedProjects={selectedProjects}
+                />
+                <Button
                   onClick={handleConfirmPrescription}
-                  className="rounded-md bg-primary-600 px-3 py-1.5 text-xs font-medium text-white leading-tight hover:bg-primary-700 transition-colors"
+                  disabled={selectedProjects.length === 0}
+                  className="w-full rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm py-6 disabled:opacity-50"
                 >
                   确认处方并流转
-                </button>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </div>
-            )}
-            {showTransition && (
-              <StatusTransition
-                patient={currentPatient}
-                selectedProjects={selectedProjects}
-                consultationData={consultationData}
-                onComplete={handleTransitionComplete}
-              />
-            )}
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-xs text-neutral-400 leading-tight">
-            请从左侧候诊队列叫号开始接诊
+            </div>
           </div>
-        )}
-      </div>
-    </div>
+        ) : (
+          /* ── confirm：流转确认页 ── */
+          <ConfirmTransition
+            patient={currentPatient}
+            selectedProjects={selectedProjects}
+            consultationData={consultationData}
+            onComplete={handleTransitionComplete}
+          />
+        )
+      ) : (
+        <div className="flex h-full p-3">
+          <div className="w-96 mx-auto">
+            <CallQueue onPatientCalled={handlePatientCalled} disabled={false} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { queueService } from "@/services";
-import { treatmentQueueService } from "@/services/supabase/treatmentQueueService";
-import { consultationHelper } from "@/services/supabase/consultationHelper";
+import { queueService, treatmentQueueService, consultationHelper } from "@/services";
 import { useQueueRealtime } from "@/hooks/useQueueRealtime";
 import type { RoomCheckIn, QueueItem } from "@/services/types";
 
@@ -12,10 +10,10 @@ export function useTreatmentQueue(region: string) {
 
   const loadQueue = useCallback(async () => {
     try {
-      const items = await queueService.getTreatmentQueue();
+      const items = await queueService.getTreatmentQueueByRegion(region);
       setQueue(items);
     } catch { /* silently fail */ }
-  }, []);
+  }, [region]);
 
   useEffect(() => { loadQueue(); }, [loadQueue]);
   useQueueRealtime(useCallback(() => { loadQueue(); }, [loadQueue]));

@@ -31,6 +31,15 @@ export function useQueueRealtime(callback: QueueChangeCallback) {
           });
         }
       )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "prescription_steps" },
+        (payload) => {
+          callbackRef.current({
+            eventType: payload.eventType as "INSERT" | "UPDATE" | "DELETE",
+          });
+        }
+      )
       .subscribe((status) => {
         if (status === "CHANNEL_ERROR") {
           console.error("[Realtime] queue-changes 订阅失败");

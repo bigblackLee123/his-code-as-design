@@ -17,7 +17,7 @@ export function ProjectDropdownList({
   onAdd: (p: TherapyProject) => void;
 }) {
   return (
-    <div className="absolute z-10 bottom-full mb-1 w-full rounded-md border border-neutral-200 bg-white shadow-md max-h-48 overflow-auto">
+    <div className="absolute z-10 bottom-full mb-1 w-full rounded-xl border border-neutral-200 bg-white shadow-lg max-h-48 overflow-auto">
       {projects.map((project) => {
         const matched = getMatchedContraindications(
           project,
@@ -31,9 +31,9 @@ export function ProjectDropdownList({
             type="button"
             disabled={isDisabled}
             className={cn(
-              "flex w-full items-start justify-between px-2 py-1.5 text-xs leading-tight transition-colors text-left gap-1",
+              "flex w-full items-start justify-between px-3 py-2 text-xs leading-tight transition-colors text-left gap-1",
               isDisabled
-                ? "cursor-not-allowed opacity-50"
+                ? "cursor-not-allowed bg-error-50/50"
                 : isSelected
                   ? "bg-primary-50 cursor-default"
                   : "hover:bg-primary-50",
@@ -41,19 +41,19 @@ export function ProjectDropdownList({
             onClick={() => !isDisabled && !isSelected && onAdd(project)}
           >
             <span className="flex flex-col gap-0.5 min-w-0">
-              <span className="text-neutral-800 truncate">
+              <span className={cn("truncate", isDisabled ? "text-error-600" : "text-neutral-800")}>
                 {project.name}
               </span>
               <span className="text-neutral-400 truncate">
                 {project.region} · {project.mood}
               </span>
               {isDisabled && (
-                <span className="flex items-center gap-0.5 text-destructive">
+                <span className="flex items-center gap-0.5 text-error-600">
                   <AlertTriangle
                     className="h-3 w-3 shrink-0"
                     aria-hidden="true"
                   />
-                  禁忌：{matched.join("、")}
+                  禁忌冲突：{matched.join("、")}
                 </span>
               )}
             </span>
@@ -81,7 +81,7 @@ export function SelectedProjectBadge({
   onRemove: (id: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-md border border-primary-400 bg-primary-50 px-2 py-1">
+    <div className="flex items-center justify-between rounded-xl border border-primary-200 bg-primary-50 px-2 py-1.5">
       <span className="text-xs text-neutral-800 leading-tight truncate">
         {project.name}
         <span className="text-neutral-400 ml-1">{project.region}</span>

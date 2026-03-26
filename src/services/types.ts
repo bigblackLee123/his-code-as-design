@@ -118,6 +118,7 @@ export interface QueueItem {
   patientId: string;
   patientName: string;
   insuranceCardNo: string; // 医保卡号
+  consultationId: string; // 就诊 ID，区域队列过滤用
   queueNumber: number;
   status: "waiting" | "in-progress" | "completed";
   enqueuedAt: string;
@@ -197,6 +198,8 @@ export interface TherapyProject {
   hasScenario: boolean;
   targetAudience: string;
   contraindications: string[];
+  frequency: string | null;
+  frequencyBand: string | null;
 }
 
 /** 处方执行步骤（多房间流转核心） */

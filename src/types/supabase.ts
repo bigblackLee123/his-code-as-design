@@ -480,6 +480,8 @@ export type Database = {
           bpm: number | null
           contraindications: Json | null
           energy_level: string | null
+          frequency: string | null
+          frequency_band: string | null
           guidance_script: string | null
           has_guidance: boolean
           has_scenario: boolean
@@ -496,6 +498,8 @@ export type Database = {
           bpm?: number | null
           contraindications?: Json | null
           energy_level?: string | null
+          frequency?: string | null
+          frequency_band?: string | null
           guidance_script?: string | null
           has_guidance?: boolean
           has_scenario?: boolean
@@ -512,6 +516,8 @@ export type Database = {
           bpm?: number | null
           contraindications?: Json | null
           energy_level?: string | null
+          frequency?: string | null
+          frequency_band?: string | null
           guidance_script?: string | null
           has_guidance?: boolean
           has_scenario?: boolean

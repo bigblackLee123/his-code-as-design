@@ -1,7 +1,10 @@
 node_modules
 dist
+release
 .DS_Store
+Thumbs.db
 *.local
+tsconfig.tsbuildinfo
 
 # 临时调试文件
 *.snapshot.txt
@@ -16,9 +19,14 @@ trace.json.gz
 doc/screenshots/
 
 # 本地密钥（不提交）
+.env
 supabase/seed-secrets.sql
 deploy/.env
+.env.production
 
 # 独立子项目（各自有 .git）
 shuguang-hospital-client/
 shuguang.earmersion.com/
+
+# 本地构建产物
+xcode-app/build/

@@ -17,11 +17,14 @@ inclusion: always
 | 2xl | 16px | `rounded-2xl` | 特大圆角，用于特殊装饰性容器 |
 | full | 9999px | `rounded-full` | 全圆角，用于头像、圆形按钮、状态圆点 |
 
-使用规范：
-- HIS 系统默认组件圆角为 `rounded-md`（6px）
-- 按钮使用 `rounded`（4px）或 `rounded-md`（6px）
-- 卡片和对话框使用 `rounded-lg`（8px）
+使用规范（Earmersion 视觉升级后）：
+- HIS 系统默认组件圆角为 `rounded-lg`（8px）
+- 按钮使用 `rounded-lg`（8px），大型 CTA 按钮使用 `rounded-full`
+- 卡片使用 `rounded-xl`（12px）或 `rounded-2xl`（16px）
+- 主内容区面板使用 `rounded-2xl`（16px）或 `rounded-3xl`（24px）
+- 对话框和模态框使用 `rounded-xl`（12px）
 - 头像和状态指示器使用 `rounded-full`
+- 筛选 Tab / Pill 按钮使用 `rounded-full`
 - 禁止使用任意圆角值（如 `rounded-[5px]`）
 
 ---

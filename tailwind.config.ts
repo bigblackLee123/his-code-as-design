@@ -26,6 +26,17 @@ const config: Config = {
         mono: ["JetBrains Mono", "monospace"],
       },
 
+      // 自定义动画
+      keyframes: {
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(16px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-up': 'fade-up 0.5s ease-out',
+      },
+
       // shadcn/ui CSS 变量映射
       borderColor: {
         border: "var(--border)",
@@ -47,18 +58,18 @@ const config: Config = {
         ring: "var(--ring)",
         background: "var(--background)",
         foreground: "var(--foreground)",
-        // 品牌主色（医疗蓝）
+        // 品牌主色（Indigo 靛蓝）
         primary: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          200: "#bae6fd",
-          300: "#7dd3fc",
-          400: "#38bdf8",
-          500: "#0ea5e9",
-          600: "#0284c7",
-          700: "#0369a1",
-          800: "#075985",
-          900: "#0c4a6e",
+          50: "#eef2ff",
+          100: "#e0e7ff",
+          200: "#c7d2fe",
+          300: "#a5b4fc",
+          400: "#818cf8",
+          500: "#6366f1",
+          600: "#4f46e5",
+          700: "#4338ca",
+          800: "#3730a3",
+          900: "#312e81",
         },
 
         // 辅助色（医疗紫）
@@ -147,13 +158,13 @@ const config: Config = {
 
         // HIS 专用语义色 — 患者状态
         his: {
-          admitted: "#0284c7",
+          admitted: "#4f46e5",
           inHospital: "#16a34a",
           discharged: "#64748b",
           critical: "#dc2626",
           // HIS 专用语义色 — 医嘱状态
           pending: "#d97706",
-          executing: "#0284c7",
+          executing: "#4f46e5",
           completed: "#16a34a",
           cancelled: "#64748b",
         },

@@ -6,3 +6,5 @@ export { contraindicationService } from "./contraindicationService";
 export { aiService } from "./aiService";
 export { therapyService } from "./therapyService";
 export { symptomService } from "./symptomService";
+export { treatmentQueueService } from "./treatmentQueueService";
+export { consultationHelper } from "./consultationHelper";

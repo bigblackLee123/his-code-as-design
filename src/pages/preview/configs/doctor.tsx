@@ -1,9 +1,12 @@
 import { registerPreview } from "../registry";
 import { CallQueue } from "@/pages/doctor-terminal/blocks/CallQueue";
+import { CallQueueCompact } from "@/pages/doctor-terminal/blocks/CallQueueCompact";
 import { PatientInfoBar } from "@/pages/doctor-terminal/blocks/PatientInfoBar";
+import { PatientInfoCard } from "@/pages/doctor-terminal/blocks/PatientInfoCard";
 import { ContraindicationInput } from "@/pages/doctor-terminal/blocks/ContraindicationInput";
 import { ScaleForm } from "@/pages/doctor-terminal/blocks/ScaleForm";
 import { AISuggestionPanel } from "@/pages/doctor-terminal/blocks/AISuggestionPanel";
+import { SidebarSummary } from "@/pages/doctor-terminal/blocks/SidebarSummary";
 import { StatusTransition } from "@/pages/doctor-terminal/blocks/StatusTransition";
 import type { Patient, ConsultationData } from "@/services/types";
 
@@ -51,6 +54,15 @@ registerPreview({
       render: () => <PatientInfoBar patient={mockPatient} />,
     },
     {
+      name: "PatientInfoCard（右边栏竖版）",
+      description: "患者信息卡片 — 竖向圆角卡片，放右边栏顶部",
+      render: () => (
+        <div className="w-80">
+          <PatientInfoCard patient={mockPatient} />
+        </div>
+      ),
+    },
+    {
       name: "ContraindicationInput",
       description: "禁忌症搜索录入（拼音/首字母检索）",
       render: () => <ContraindicationDemo />,
@@ -81,6 +93,28 @@ registerPreview({
           consultationData={mockConsultation}
           onComplete={() => alert("流转完成")}
         />
+      ),
+    },
+    {
+      name: "CallQueueCompact（右边栏精简版）",
+      description: "候诊队列精简版 — 只显示前3位，可展开",
+      render: () => (
+        <div className="w-80">
+          <CallQueueCompact onPatientCalled={() => alert("叫号成功")} disabled={false} />
+        </div>
+      ),
+    },
+    {
+      name: "SidebarSummary（右边栏摘要）",
+      description: "禁忌症 + 量表得分 + 已选配方摘要卡片",
+      render: () => (
+        <div className="w-80">
+          <SidebarSummary
+            contraindications={mockConsultation.contraindications}
+            scaleResults={null}
+            selectedProjects={[]}
+          />
+        </div>
       ),
     },
   ],

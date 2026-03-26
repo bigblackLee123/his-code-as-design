@@ -1,9 +1,8 @@
-import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { validateVitalSigns, calculateVitalSignsChange } from "@/lib/vitalSignsValidation";
+import { usePostVitals } from "./usePostVitals";
 import { VITAL_SIGNS_RULES, VITAL_SIGNS_ALERT_THRESHOLDS } from "@/services/types";
 import type { VitalSigns } from "@/services/types";
 import { HeartPulse, AlertTriangle, Save, ArrowRight } from "lucide-react";
@@ -24,47 +23,7 @@ const FIELDS: { key: VitalField; label: string; unit: string }[] = [
 const CHANGE_THRESHOLD = 20;
 
 export function PostVitalSigns({ preVitals, onSave }: PostVitalSignsProps) {
-  const [values, setValues] = useState<Record<VitalField, string>>({
-    systolicBP: "",
-    diastolicBP: "",
-    heartRate: "",
-  });
-  const [saving, setSaving] = useState(false);
-
-  const parsedVitals: Partial<VitalSigns> = {
-    systolicBP: values.systolicBP ? Number(values.systolicBP) : undefined,
-    diastolicBP: values.diastolicBP ? Number(values.diastolicBP) : undefined,
-    heartRate: values.heartRate ? Number(values.heartRate) : undefined,
-  };
-
-  const validation = validateVitalSigns(parsedVitals);
-  const allFilled = values.systolicBP !== "" && values.diastolicBP !== "" && values.heartRate !== "";
-  const canSave = allFilled && validation.valid;
-
-  const postVitalsComplete: VitalSigns | null = canSave
-    ? { systolicBP: Number(values.systolicBP), diastolicBP: Number(values.diastolicBP), heartRate: Number(values.heartRate), recordedAt: "", recordedBy: "" }
-    : null;
-
-  const changeMap = postVitalsComplete ? calculateVitalSignsChange(preVitals, postVitalsComplete) : null;
-
-  const handleChange = useCallback((field: VitalField, raw: string) => {
-    const cleaned = raw.replace(/[^\d]/g, "");
-    setValues((prev) => ({ ...prev, [field]: cleaned }));
-  }, []);
-
-  const handleSave = async () => {
-    if (!canSave) return;
-    setSaving(true);
-    const vitals: VitalSigns = {
-      systolicBP: Number(values.systolicBP),
-      diastolicBP: Number(values.diastolicBP),
-      heartRate: Number(values.heartRate),
-      recordedAt: new Date().toISOString(),
-      recordedBy: "治疗护士",
-    };
-    setSaving(false);
-    onSave(vitals);
-  };
+  const { values, validation, saving, canSave, changeMap, handleChange, handleSave } = usePostVitals(preVitals, onSave);
 
   return (
     <div className="flex flex-col gap-2">
